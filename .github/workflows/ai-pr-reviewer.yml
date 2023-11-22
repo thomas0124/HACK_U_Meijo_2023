@@ -1,0 +1,56 @@
+name: Code Review
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    types: [opened]
+  pull_request_review_comment:
+    types: [created]
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group:
+    ${{ github.repository }}-${{ github.event.number || github.head_ref ||
+    github.sha }}-${{ github.workflow }}-${{ github.event_name ==
+    'pull_request_review_comment' && 'pr_comment' || 'pr' }}
+  cancel-in-progress: ${{ github.event_name != 'pull_request_review_comment' }}
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: coderabbitai/ai-pr-reviewer@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          debug: false
+          review_simple_changes: false
+          review_comment_lgtm: false
+          openai_light_model: gpt-3.5-turbo
+          openai_heavy_model: gpt-3.5-turbo
+          openai_timeout_ms: 900000
+          language: ja-JP
+          system_message: |
+            あなたは @coderabbitai（別名 github-actions[bot]）で、OpenAIによって訓練された言語モデルです。
+            些細なコードスタイルの問題や、コメント・ドキュメントの欠落についてはコメントしないでください。
+          summarize: |
+            次の内容でmarkdownフォーマットを使用して、最終的な回答を提供してください。
+
+              ### 概要: 特定のファイルではなく、全体の変更に関する高レベルの要約を80語以内で。
+              ### 詳細: ファイルとその要約のテーブル。スペースを節約するために、同様の変更を持つファイルを1行にまとめることが可能
+
+          summarize_release_notes: |
+            このプルリクエストのために、markdownフォーマットで簡潔なリリースノートを作成してください。
+            変更は以下のような分類で箇条書きにすること:
+              "New Feature", "Bug fix", "Documentation", "Refactor", "Style",
+              "Test", "Chore", "Revert"
+            例えば:
+            ```
+            - New Feature: モーダルコンポーネントを追加
+            ```
+            回答は50-100語以内にしてください。
