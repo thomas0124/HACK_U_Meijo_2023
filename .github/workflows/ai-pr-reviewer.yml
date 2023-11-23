@@ -31,8 +31,8 @@ jobs:
           debug: false
           review_simple_changes: false
           review_comment_lgtm: false
-          openai_light_model: gpt-3.5-turbo
-          openai_heavy_model: gpt-3.5-turbo
+          openai_light_model: gpt-4
+          openai_heavy_model: gpt-4
           openai_timeout_ms: 900000
           language: ja-JP
           system_message: |
@@ -43,6 +43,7 @@ jobs:
 
               ### 概要: 特定のファイルではなく、全体の変更に関する高レベルの要約を80語以内で。
               ### 詳細: ファイルとその要約のテーブル。スペースを節約するために、同様の変更を持つファイルを1行にまとめることが可能
+
 
           summarize_release_notes: |
             このプルリクエストのために、markdownフォーマットで簡潔なリリースノートを作成してください。
