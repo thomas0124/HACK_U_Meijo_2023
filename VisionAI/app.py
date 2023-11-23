@@ -6,6 +6,7 @@ import base64
 from fastapi.responses import JSONResponse
 from fastapi import UploadFile, File
 from io import BytesIO
+import uvicorn
 
 app = FastAPI()
 
@@ -28,3 +29,6 @@ async def post(image: UploadFile = File(...)):
     dataurl = 'data:image/png;base64,' + img_base64
 
     return JSONResponse(content={'img_data': dataurl})
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)
