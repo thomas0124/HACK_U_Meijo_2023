@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Networking;
 using System.IO;
-public class ConnectionTest : MonoBehaviour
+public class ConnectionAPI : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
