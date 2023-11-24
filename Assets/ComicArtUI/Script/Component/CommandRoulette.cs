@@ -11,6 +11,8 @@ public class CommandRoulette : MonoBehaviour
     private float countTime;
     private int lastTime;
     private float speed = 10;
+    private float lottery;
+
 
     //ルーレットが止まった時のアイテムを記憶
     private Image OnOff_target = null;
@@ -47,12 +49,18 @@ public class CommandRoulette : MonoBehaviour
                 commandlist[(int)countTime].color = new Color(1, 0, 0);
             }
         }
+        else
+        {
+            lottery = Random.Range(990, 997) * 0.001f;
+            speed *= lottery;
+        }
     }
 
     //ルーレットを開始
     public void StartRoulette()
     {
         speed = 10;
+        countTime = 0f;
 
         //OnRouletteでUpdateのオンオフを管理
         isOn_Roulette = true;
@@ -61,20 +69,25 @@ public class CommandRoulette : MonoBehaviour
     //ルーレットを停止
     public void StopRoulette()
     {
-        //ルーレットを止めた時のリストの画像を点滅させる
+
+        //ルーレットを止めた時のリストの画像を記録
         OnOff_target = commandlist[(int)countTime];
-        speed = 0;
+        
         isOn_Roulette = false;
 
         Debug.Log(OnOff_target);
 
-        // コルーチンの起動
-        StartCoroutine(Blinking());
+        if(speed <= 0)
+        {
+            // ルーレットを止めて点滅させるコルーチンの起動
+            StartCoroutine(Blinking());
+        }
     }
 
-    // コルーチン本体
+    // ルーレットを止めて点滅させるコルーチン本体
     private IEnumerator Blinking()
     {
+
         // ルーレットが停止してる間点滅し続ける
         while (!isOn_Roulette) 
         {
