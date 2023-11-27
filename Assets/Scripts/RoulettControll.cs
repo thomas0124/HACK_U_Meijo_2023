@@ -18,19 +18,19 @@ public class RoulettControll : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        InitializeRoulett();
     }
 
     // Update is called once per frame
     void Update()
     {
-        //タイマーA
+        // タイマーA
         countTime += Time.deltaTime * speed;
         if (countTime > commandlist.Length)
         {
             countTime = 0f;
         }
-        //タイマーB
+        // タイマーB
         fireTime += Time.deltaTime;
         if (lastTime != (int)countTime)
         {
@@ -42,7 +42,7 @@ public class RoulettControll : MonoBehaviour
             lastTime = (int)countTime;
             commandlist[(int)countTime].color = new Color(1, 0, 0);
         }
-        //isStopがtrueのときにルーレットを減速
+        // isStopがtrueのときにルーレットを減速
         if (isStop)
         {
             lottery = Random.Range(990, 997) * 0.001f;
@@ -53,25 +53,25 @@ public class RoulettControll : MonoBehaviour
             fireTime = 0;
             justOnce = false;
         }
-        if(speed <= 0.05f && !isBlinking)
+        if (speed <= 0.05f && !isBlinking)
         {
             speed = 0f;
+            isBlinking = true;
+
             // 止まったところを点滅させるコルーチンの起動
             StartCoroutine(Blinking(commandlist[(int)countTime]));
-            isBlinking = true;
+
+            // ここで他スクリプトにcommandlist[(int)countTime]を送信  
         }
     }
 
-    public void startRoulett()
+    public void StartRoulett()
     {
         isStop = false;
-        speed = 10;
-        justOnce = true;
-        countTime = 0;
-        fireTime = 0;
+        InitializeRoulett();
     }
 
-    public void stopRoulett()
+    public void StopRoulett()
     {
         isStop = true;
     }
@@ -80,7 +80,7 @@ public class RoulettControll : MonoBehaviour
     private IEnumerator Blinking(Image _image)
     {
         // ルーレットが停止してる間点滅し続ける
-        while (true)
+        while (isBlinking)
         {
             _image.color = new Color(1, 0, 0);
 
@@ -90,5 +90,15 @@ public class RoulettControll : MonoBehaviour
 
             yield return new WaitForSeconds(0.25f);
         }
+    }
+
+    // 共通の初期化処理をまとめたメソッド
+    private void InitializeRoulett()
+    {
+        isBlinking = false;
+        speed = 10;
+        justOnce = true;
+        countTime = 0f;
+        fireTime = 0f;
     }
 }

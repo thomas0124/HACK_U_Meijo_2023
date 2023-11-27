@@ -23,6 +23,6 @@ public class RouletteButton : MonoBehaviour
 
     public void OnClickedButton()
     {
-        roulettecontroll.stopRoulett();
+        roulettecontroll.StopRoulett();
     }
 }
