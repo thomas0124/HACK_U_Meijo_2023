@@ -8,7 +8,7 @@ public class RouletteButton : MonoBehaviour
 {
 
     //CommandRouletteを呼び出し
-    public RoulettControll roulettecontroll;
+    public RoulettController roulettecontroller;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +23,6 @@ public class RouletteButton : MonoBehaviour
 
     public void OnClickedButton()
     {
-        roulettecontroll.StopRoulett();
+        roulettecontroller.StopRoulett();
     }
 }

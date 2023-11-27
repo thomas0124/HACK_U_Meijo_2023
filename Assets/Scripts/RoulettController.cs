@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RoulettControll : MonoBehaviour
+public class RoulettController : MonoBehaviour
 {
     [SerializeField] Image[] commandlist;
     private float countTime;
@@ -14,6 +14,9 @@ public class RoulettControll : MonoBehaviour
     private float lottery;
     bool justOnce = true;
     bool isBlinking = false;
+    int resultValue;//ルーレットの結果を保存
+
+    private Character character;
 
     // Start is called before the first frame update
     void Start()
@@ -53,15 +56,16 @@ public class RoulettControll : MonoBehaviour
             fireTime = 0;
             justOnce = false;
         }
-        if (speed <= 0.05f && !isBlinking)
+        if (speed <= 0.05f && isBlinking == false)
         {
-            speed = 0f;
             isBlinking = true;
+            speed = 0f;
+
+            // ここで他スクリプトに(int)countTimeを送信 
+            setValue((int)countTime);
 
             // 止まったところを点滅させるコルーチンの起動
             StartCoroutine(Blinking(commandlist[(int)countTime]));
-
-            // ここで他スクリプトにcommandlist[(int)countTime]を送信  
         }
     }
 
@@ -76,11 +80,25 @@ public class RoulettControll : MonoBehaviour
         isStop = true;
     }
 
+    //ルーレットの結果（リスト番号:0-4）を保存する
+    public void setValue(int value)
+    {
+        resultValue = value;
+    }
+
+    //ルーレットの結果を他スクリプトに送信するための関数
+    public int getValue()
+    {
+        return resultValue;
+    }
+
+
+
     // コルーチン本体
     private IEnumerator Blinking(Image _image)
     {
         // ルーレットが停止してる間点滅し続ける
-        while (isBlinking)
+        for(int i = 0; i < 3; i++)
         {
             _image.color = new Color(1, 0, 0);
 

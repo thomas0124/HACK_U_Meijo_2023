@@ -4,45 +4,30 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
-public class NewBehaviourScript : MonoBehaviour
+public class HPBar : MonoBehaviour
 {
 
     [SerializeField] UnityEngine.UI.Slider hpSlider;
-    //[SerializeField] Text hpText;
+    [SerializeField] Text hpText;
 
-    private float maxHp = 100f;
-    private float nowHp;
-    private float slidervalue;
+    private int nowHp;
+    private int slidervalue;
 
     // Start is called before the first frame update
     void Start()
     {
-        hpSlider = GetComponent<UnityEngine.UI.Slider>();
-        //hpText = GetComponent<Text>();
-
-        //スライダーの最大値の設定
-        hpSlider.maxValue = maxHp;
-
+        Character character;
+        character = GetComponentInParent<Transform>();
         //HPを初期化
-        nowHp = maxHp;
+        nowHp = character.H;
 
         //スライダーの現在値の設定
         hpSlider.value = nowHp;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        //slidervalue = hpSlider.value;
-        //hpText.text = "HP  " + slidervalue;
-    }
+    public void ChangeHP(int damage){
 
-    public void OnChangeSlider()
-    {
-        if (Input.GetKey(KeyCode.Space))
-        {
-            nowHp = nowHp - 10f;
-            hpSlider.value = nowHp / maxHp;
-        }
+        nowHp -= damage;
+        hpSlider.value = nowHp;
     }
 }
