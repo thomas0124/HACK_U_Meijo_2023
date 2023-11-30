@@ -1,3 +1,4 @@
 *.cs linguist-vendored
 *.cginc linguist-vendored
 *.wlt linguist-vedored
+Mathematica linguist-vedored
