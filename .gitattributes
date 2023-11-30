@@ -1,2 +1,3 @@
 *.cs linguist-vendored
 *.cginc linguist-vendored
+*.wlt linguist-vedored
