@@ -23,7 +23,7 @@ async def post(image: UploadFile = File(...)):
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # グレースケール画像をバイト列に変換
-    _, img_encoded = cv2.imencode('.png', gray_img)
+    _, img_encoded = cv2.imencode('test.png', gray_img)
     img_bytes = img_encoded.tobytes()
     img_base64 = base64.b64encode(img_bytes).decode('utf-8')
     dataurl = 'data:image/png;base64,' + img_base64
@@ -31,4 +31,4 @@ async def post(image: UploadFile = File(...)):
     return JSONResponse(content={'img_data': dataurl})
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8883)
