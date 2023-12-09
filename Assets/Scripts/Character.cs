@@ -14,10 +14,10 @@ public class Character
     public int D;//とくぼう
     public int S;//すばやさ
     public int Element;//属性　：　0->火,　1->水,　2->草,　3->光,　4->闇
-    public int Action;//ルーレットによって決まる行動の値 : 0->攻撃, 1->スキル1, 2->スキル２, 3->スキル３, 4->ミス
+    public int Action;//ルーレットによって決まる行動の値 : 0->攻撃, 1->スキル1, 2->スキル２, 3->スキル３, 4->ミス, 5->ミス
     public double Mag = 1;//スキル倍率(初期値１)
 
-    public Character(int H, int A, int B, int C, int D, int S, int Element){
+    public Character(int H, int A, int B, int C, int D, int S, int Element, int Action){
         this.H = H;
         this.A = A;
         this.B = B;
@@ -25,24 +25,13 @@ public class Character
         this.D = D;
         this.S = S;
         this.Element = Element;
+        this.Action = Action;
     }
-
-    /*
-    public int getAction()
-    {
-        //ルーレットのパネル表示,ルーレットスタート
-        ui.DisplayPanel();
-        Action = ui.getValue();
-        //ルーレットのパネル非表示
-        ui.HiddenPanel();
-
-        return Action;
-    }
-    */
 
     //Enemy -> Ally
     public void takeDamage_A(Character c, int d, Slider hpSlider_A, Text hpText_A)
     {
+        Debug.Log("Enemy -> Ally : " + d + "ダメージ");
         c.H -= d;
         ui.ChangeAllySlider(c.H, hpSlider_A, hpText_A);
     }
@@ -50,8 +39,15 @@ public class Character
     //Ally -> Enemy
     public void takeDamage_E(Character c, int d, Slider hpSlider_E)
     {
+        Debug.Log("Ally -> Enemy : " + d + "ダメージ");
         c.H -= d;
         ui.ChangeEnemySlider(c.H, hpSlider_E);
+    }
+
+    //アクションを記憶
+    public void setAction(Character c, int action)
+    {
+        c.Action = action;
     }
 
     //HPが０以下になったらtrueを返す
