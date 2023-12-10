@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 190fb4272ea9d2d4cb0acf3dad8f4734, type: 3}
+  m_Name: Card In Inventory
+  m_EditorClassIdentifier: 
+  cardStatusList:
+  - creature: {fileID: 21300000, guid: 1b30facc83db77749bc267d956d0221e, type: 3}
+    attribute: 0
+    hp: 0
+    atk: 0
+    magatk: 0
+    dif: 0
+    magdif: 0
+    speed: 0
+  - creature: {fileID: 21300000, guid: 944c3620186c8d04e903164ba9b58dd6, type: 3}
+    attribute: 0
+    hp: 0
+    atk: 0
+    magatk: 0
+    dif: 0
+    magdif: 0
+    speed: 0
+  - creature: {fileID: 21300000, guid: e9860e8dbba1ec64fa8de0f7511ef0e4, type: 3}
+    attribute: 0
+    hp: 0
+    atk: 0
+    magatk: 0
+    dif: 0
+    magdif: 0
+    speed: 0
