@@ -7,10 +7,6 @@ public class ContentCard : MonoBehaviour
 {
     public GameObject cardPrehub;
     public CardInInventory cardInInventory;
-    private void Start()
-    {
-        CardUpdate();
-    }
     public void CardUpdate()
     {
         foreach(Transform child in gameObject.transform)
@@ -21,6 +17,7 @@ public class ContentCard : MonoBehaviour
         {
             GameObject obj = Instantiate(cardPrehub, Vector3.zero, Quaternion.identity, this.transform);
             obj.GetComponent<Image>().sprite = cardInInventory.cardStatusList[i].creature;
+            obj.GetComponent<CardSelectButtonId>().id = i;
         }
     }
 }

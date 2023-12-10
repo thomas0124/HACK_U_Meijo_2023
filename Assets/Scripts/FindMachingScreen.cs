@@ -8,7 +8,7 @@ public class FindMachingScreen : MonoBehaviour
     private GameObject matchingScreen;
     [SerializeField]
     private ActiveButton activeButton;
-    void Start()
+    void Awake()
     {
         main = GameObject.Find("5");
         matchingScreen = main.transform.Find("Matching Screen").gameObject;

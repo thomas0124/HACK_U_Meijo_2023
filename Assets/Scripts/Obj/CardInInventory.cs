@@ -7,6 +7,7 @@ using System;
 [CreateAssetMenu]
 public class CardInInventory : ScriptableObject
 {
+    public int SelectCardId;
     public List<CardStatus> cardStatusList = new List<CardStatus>();
 }
 

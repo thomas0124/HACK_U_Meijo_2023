@@ -12,7 +12,6 @@ public class CardStartAdd : MonoBehaviour
     }
     void Start()
     {
-        //start以外で使うときは更新必須またはシーンロードで更新するべきContentCard
         cardChange.CardAdd(sprite, attribute.fire, 1, 1, 1, 1, 1, 1);
     }
 }
