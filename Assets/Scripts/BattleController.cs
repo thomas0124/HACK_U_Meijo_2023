@@ -1,3 +1,12 @@
+/*
+バトルシーンの管理
+自身のステータスー>Characterクラス , 相手のステータス->nowEnemyStatus
+
+
+SetStatus(int h, int a, int b, int c, int d, int s, int element, int[] skill_id)
+を外部から設定して自分のキャラクターのステータスを設定できます。 skill_id はCSVファイルで管理してるスキルのID
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,7 +24,7 @@ public class BattleController : MonoBehaviourPunCallbacks
     private int damage;//与ダメージ
     private int resultValue;
     private List<Skills.SKILL> skills;//CSVから読み込んだスキル用の構造体リストを格納
-    private int[] nowEnemyStatus = {0,0,0,0,0,0,0};//相手のH,A,B,C,D,S,Elementを記憶する
+    private int[] nowEnemyStatus = new int[7];//相手のH,A,B,C,D,S,Elementを記憶する
 
     private Skills sk;
     public  UIController ui;
@@ -59,25 +68,16 @@ public class BattleController : MonoBehaviourPunCallbacks
     void Start()
     {
 
-        int[] skill_id = {Random.Range(0, 25),Random.Range(0, 25),Random.Range(0, 25)};
-        SetStatus(1000,300,300,300,300,300 + Random.Range(10, 100),Random.Range(0, 5),skill_id);
-
-
-
-        //*仮でステータスを配分する=============================================
-        if(Ally == null)
-        {
-            Debug.Log("Allyを仮生成");
-            //仮でステータスを入れとく
-            Ally = new Character(1000,300,300,300,300,300 + Random.Range(10, 100),Random.Range(0, 5),skill_id);
-        }
-        //*ここまで===========================================================*/
+        //HPバーの最大値を設定
+        hpSlider_A.maxValue = Ally.H;
+        hpSlider_E.maxValue = nowEnemyStatus[0];
 
         sk = new Skills();
         //SKILL構造体のcsvファイルを読み込む
         skills = sk.SKILL_read_csv("skill");
 
         Debug.Log("<Ally>"+Ally.H+","+Ally.A+","+Ally.B+","+Ally.C+","+Ally.D+","+Ally.S+","+Ally.Element);
+        Debug.Log("<Ally>"+nowEnemyStatus[0]+","+nowEnemyStatus[1]+","+nowEnemyStatus[2]+","+nowEnemyStatus[3]+","+nowEnemyStatus[4]+","+nowEnemyStatus[5]+","+nowEnemyStatus[6]);
 
         TurnObj.enabled = false;
         ui.HiddenPanel(roulettPanel);//ルーレットのパネル非表示
@@ -93,7 +93,7 @@ public class BattleController : MonoBehaviourPunCallbacks
         }
 
         //hpの初期化
-        ChangeHPber(nowEnemyStatus);
+        ChangeHPber(Ally.H ,nowEnemyStatus[0]);
 
         StartCoroutine(BattleCoroutine());//バトルのコルーチン起動
     }
@@ -161,12 +161,7 @@ public class BattleController : MonoBehaviourPunCallbacks
 
         ui.HiddenPanel(roulettPanel);                       //*ルーレットのパネル非表示
 
-        damage = calDamage(Ally, nowEnemyStatus);           //*ダメージを計算
-
-        nowEnemyStatus[0] -= damage;
-        if(nowEnemyStatus[0] < 0) nowEnemyStatus[0] = 0;
-
-        ChangeHPber(nowEnemyStatus);                        //*HPバーを変更する
+        calDamage(Ally, nowEnemyStatus);           //*ダメージを計算
 
         yield return new WaitForSeconds(1f);                //?1秒待機
         yield break;
@@ -188,17 +183,15 @@ public class BattleController : MonoBehaviourPunCallbacks
     }
 
 //HPバーの表記を共有
-    public void ChangeHPber(int[] nowEnemyStatus)
+    public void ChangeHPber(int ally_h, int enemy_h)
     {
-        photonView.RPC(nameof(RPCChangeHPber), RpcTarget.All, nowEnemyStatus);
+        photonView.RPC(nameof(RPCChangeHPber), RpcTarget.All, ally_h, enemy_h);
     }
     [PunRPC]
-    private void RPCChangeHPber(int[] nowEnemyStatus)
+    private void RPCChangeHPber(int ally_h, int enemy_h)
     {
-        hpSlider_A.maxValue = Ally.H;
-        hpSlider_E.maxValue = nowEnemyStatus[0];
-        ui.ChangeAllySlider(Ally.H, hpSlider_A, hpText_A);
-        ui.ChangeEnemySlider(nowEnemyStatus[0], hpSlider_E);
+        ui.ChangeAllySlider(ally_h, hpSlider_A, hpText_A);
+        ui.ChangeEnemySlider(enemy_h, hpSlider_E);
     }
 //属性相性を判別 : 入力　(攻撃属性,受ける属性)、返り値は攻撃倍率
     public double Compatibility(int e1, int e2)
@@ -225,7 +218,7 @@ public class BattleController : MonoBehaviourPunCallbacks
         }
     }
 //与ダメージ量計算(c1 -> c2)
-    private int calDamage(Character c1, int[] nowEnemyStatus){
+    private void calDamage(Character c1, int[] nowEnemyStatus){
         /*
         ダメージ計算式(int) : ((B or D ÷ 3)-(A or C ÷ 2))*属性相性(1.5 or 1.0)
         A,Cは自身のステータス　　B,Dは相手のステータス
@@ -233,6 +226,7 @@ public class BattleController : MonoBehaviourPunCallbacks
         
         int action = c1.Action;
         double damage;//与ダメージ量
+        int heal;//ヒール量
         double comp;//属性相性(有効属性の時のみ1.5倍)
         int mag = 1;//スキル倍率
         Skills.SKILL skill = new Skills.SKILL();//発動するスキルを格納
@@ -248,6 +242,17 @@ public class BattleController : MonoBehaviourPunCallbacks
         {
             skill = skills[c1.Skill_id[action - 1]];
             Debug.Log(skill.name);
+
+            //スキルが回復系だった時は自身を回復して終了する
+            if(skill.heal >= 0) 
+            {
+                heal = skill.heal;
+                c1.H += heal;
+                SendCharacterStatus(Ally.H);
+                return;
+            }
+
+            //スキルが攻撃系だった時
             if(skill.special == 1)
             {
                 mag = skill.mag;//スキルが特殊系の時
@@ -265,7 +270,10 @@ public class BattleController : MonoBehaviourPunCallbacks
             damage = 0;
         }
 
-        return (int)damage;
+        nowEnemyStatus[0] -= (int)damage;
+        if(nowEnemyStatus[0] < 0) nowEnemyStatus[0] = 0;
+
+        ChangeHPber(c1.H, nowEnemyStatus[0]);
     }
 
 //ルーレットのスキル表記を変更する
@@ -354,6 +362,18 @@ public class BattleController : MonoBehaviourPunCallbacks
     private void SendCharacterStatus(int H, int A, int B, int C, int D, int S, int Element)
     {
         photonView.RPC(nameof(RPCsetCharacter), RpcTarget.Others, H, A, B, C, D, S, Element);
+    }
+
+    //2回目以降
+    private void SendCharacterStatus(int H)
+    {
+        photonView.RPC(nameof(RPCsetNowStatus), RpcTarget.Others, H);
+    }
+
+    [PunRPC]
+    void RPCsetNowStatus(int H)
+    {
+        nowEnemyStatus[0] = H;
     }
 
     [PunRPC]

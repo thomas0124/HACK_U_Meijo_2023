@@ -84,7 +84,6 @@ public class UIController : MonoBehaviour
     //自分のキャラクターのHPをHPバーに反映する
     public void ChangeAllySlider(int nowhp, Slider hpSlider_A, Text hpText_A)
     {
-        Debug.Log("Ally H: " + nowhp);
         hpSlider_A.value = nowhp;
         //テキストを変更
         hpText_A.text = "HP  " + nowhp.ToString();
@@ -93,7 +92,6 @@ public class UIController : MonoBehaviour
     //相手のキャラクターのHPをHPバーに反映する
     public void ChangeEnemySlider(int nowhp, Slider hpSlider_E)
     {
-        Debug.Log("Enemy H: " + nowhp);
         hpSlider_E.value = nowhp;
     }
 
