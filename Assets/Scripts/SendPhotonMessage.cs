@@ -12,8 +12,9 @@ public class SendPhotonMessage : MonoBehaviourPunCallbacks
     }
     public void SendComp()
     {
-        photonView.RPC(nameof(AfterKariLoading), RpcTarget.Others, true);
+        photonView.RPC(nameof(CallbackSummonCard), RpcTarget.Others, true);
     }
+    [PunRPC]
     void CallbackSummonCard(bool index)
     {
         afterKariLoading.eComp = index;
