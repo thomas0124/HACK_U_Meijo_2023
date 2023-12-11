@@ -297,6 +297,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3791234138081669835, guid: 63274870e4d914f4ab14ad5f22e708b5, type: 3}
   m_PrefabInstance: {fileID: 263297799}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &325808744 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8894353342562192517, guid: 63274870e4d914f4ab14ad5f22e708b5, type: 3}
+  m_PrefabInstance: {fileID: 1249402330}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &459343529
 GameObject:
   m_ObjectHideFlags: 0
@@ -444,6 +455,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 549199829}
   m_CullTransparentMesh: 1
+--- !u!114 &564778493 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8894353342562192517, guid: 63274870e4d914f4ab14ad5f22e708b5, type: 3}
+  m_PrefabInstance: {fileID: 1806507651}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &570442031
 GameObject:
   m_ObjectHideFlags: 0
@@ -531,6 +553,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &924533127 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8894353342562192517, guid: 63274870e4d914f4ab14ad5f22e708b5, type: 3}
+  m_PrefabInstance: {fileID: 263297799}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1249402330
@@ -1060,7 +1093,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 1916655594}
         m_TargetAssemblyTypeName: BattleController, Assembly-CSharp
-        m_MethodName: RPCOnStartButton
+        m_MethodName: SendStartRoulett
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1200,6 +1233,96 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1554557023
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1554557026}
+  - component: {fileID: 1554557025}
+  - component: {fileID: 1554557024}
+  m_Layer: 5
+  m_Name: TurnObj
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1554557024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554557023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 12800000, guid: 4ef76c9af78d648289d98cbdb0c1c864, type: 3}
+    m_FontSize: 180
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 0
+    m_MaxSize: 200
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: Your Turn
+--- !u!222 &1554557025
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554557023}
+  m_CullTransparentMesh: 1
+--- !u!224 &1554557026
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554557023}
+  m_LocalRotation: {x: 0, y: 0, z: 0.08715578, w: 0.9961947}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1775618665}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 10}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 6, y: 47.244812}
+  m_SizeDelta: {x: 880.4094, y: 256.2639}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1644891964 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8894353342562192517, guid: 63274870e4d914f4ab14ad5f22e708b5, type: 3}
+  m_PrefabInstance: {fileID: 1372934574}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1664289202
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1306,6 +1429,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3791234138081669835, guid: 63274870e4d914f4ab14ad5f22e708b5, type: 3}
   m_PrefabInstance: {fileID: 1664289202}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1743829174 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8894353342562192517, guid: 63274870e4d914f4ab14ad5f22e708b5, type: 3}
+  m_PrefabInstance: {fileID: 1265182416}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1775618661
 GameObject:
   m_ObjectHideFlags: 0
@@ -1405,6 +1539,7 @@ RectTransform:
   - {fileID: 1834087528}
   - {fileID: 1234361843927738830}
   - {fileID: 2220753489280475152}
+  - {fileID: 1554557026}
   - {fileID: 570442032}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1572,6 +1707,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1819996692 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8894353342562192517, guid: 63274870e4d914f4ab14ad5f22e708b5, type: 3}
+  m_PrefabInstance: {fileID: 1664289202}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1834087527
 GameObject:
   m_ObjectHideFlags: 0
@@ -1698,6 +1844,14 @@ MonoBehaviour:
   hpText_A: {fileID: 4264514380790885424}
   StartButton: {fileID: 1426337956}
   StopButton: {fileID: 1956765098}
+  roulettTexts:
+  - {fileID: 564778493}
+  - {fileID: 1819996692}
+  - {fileID: 924533127}
+  - {fileID: 1644891964}
+  - {fileID: 325808744}
+  - {fileID: 1743829174}
+  TurnObj: {fileID: 1554557024}
 --- !u!1 &1956765098
 GameObject:
   m_ObjectHideFlags: 0
@@ -1795,7 +1949,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 1916655594}
         m_TargetAssemblyTypeName: BattleController, Assembly-CSharp
-        m_MethodName: RPCOnStopButton
+        m_MethodName: SendStopRoulett
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
