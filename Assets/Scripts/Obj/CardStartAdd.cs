@@ -13,6 +13,6 @@ public class CardStartAdd : MonoBehaviour
     void Start()
     {
         List<int> skill = new List<int>() { 1, 1, 1 };
-        cardChange.CardAdd(sprite, attribute.fire, 1, 1, 1, 1, 1, 1, skill);
+        cardChange.CardAdd(sprite, 1, 1, 1, 1, 1, 1, 1, skill);
     }
 }

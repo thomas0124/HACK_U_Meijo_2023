@@ -29,16 +29,25 @@ public class BattleController : MonoBehaviourPunCallbacks
     private Skills sk;
     public  UIController ui;
     public CardInInventory Ally;
+    private Sprite creature;
+    private int attribute;
+    private int hp;
+    private int atk;
+    private int magatk;
+    private int def;
+    private int magdef;
+    private int speed;
+    private int[] skill1;
 
     private Sprite Enemy_creature;
-    private attribute Enemy_attribute;
+    private int Enemy_attribute;
     private int Enemy_hp;
     private int Enemy_atk;
     private int Enemy_magatk;
     private int Enemy_def;
     private int Enemy_magdef;
     private int Enemy_speed;
-    private List<int> Enemy_skill1;
+    private int[] Enemy_skill1;
 
 
     public GameObject roulettPanel;
@@ -52,7 +61,19 @@ public class BattleController : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        SendCharacterStatus(Ally);//相手側のEnemyにAllyのステータスが反映される
+        creature = Ally.cardStatusList[Ally.SelectCardId].creature;
+        attribute = Ally.cardStatusList[Ally.SelectCardId].attribute;
+        hp = Ally.cardStatusList[Ally.SelectCardId].hp;
+        atk = Ally.cardStatusList[Ally.SelectCardId].atk;
+        magatk = Ally.cardStatusList[Ally.SelectCardId].magatk;
+        def = Ally.cardStatusList[Ally.SelectCardId].def;
+        magdef = Ally.cardStatusList[Ally.SelectCardId].magdef;
+        speed = Ally.cardStatusList[Ally.SelectCardId].speed;
+        for (int i = 0; i < Ally.cardStatusList[Ally.SelectCardId].skill1.Count; i++)
+        {
+            skill1[i] = Ally.cardStatusList[Ally.SelectCardId].skill1[i];
+        }
+        SendCharacterStatus(creature, attribute, hp, atk, magatk, def, magdef, speed, skill1);//相手側のEnemyにAllyのステータスが反映される
 
         //HPバーの最大値を設定
         hpSlider_A.maxValue = Ally.cardStatusList[Ally.SelectCardId].hp;
@@ -243,7 +264,7 @@ public class BattleController : MonoBehaviourPunCallbacks
             {
                 heal = skill.heal;
                 Ally.cardStatusList[Ally.SelectCardId].hp += heal;
-                SendCharacterStatus(Ally);
+                SendCharacterStatus(creature, attribute, hp, atk, magatk, def, magdef, speed, skill1);
                 return;
             }
 
@@ -362,23 +383,23 @@ public class BattleController : MonoBehaviourPunCallbacks
         turn = t;
     }
 //相手に自分のキャラのステータスを送る
-    private void SendCharacterStatus(CardInInventory cardInInventory)
+    private void SendCharacterStatus(Sprite creature, int attribute, int hp, int atk, int magatk, int def, int magdef, int speed, int[] skill)
     {
-        photonView.RPC(nameof(RPCsetCharacter), RpcTarget.Others, cardInInventory.cardStatusList[cardInInventory.SelectCardId]);
+        photonView.RPC(nameof(RPCsetCharacter), RpcTarget.Others, creature, attribute, hp, atk, magatk, def, magdef, speed, skill1);
     }
 
     [PunRPC]
-    void RPCsetCharacter(CardStatus cardStatus)
+    void RPCsetCharacter(Sprite creature, int attribute, int hp, int atk, int magatk, int def, int magdef, int speed, int[] skill)
     {
-        Enemy_creature = cardStatus.creature;
-        Enemy_attribute = cardStatus.attribute;
-        Enemy_hp = cardStatus.hp;
-        Enemy_atk = cardStatus.atk;
-        Enemy_magatk = cardStatus.magatk;
-        Enemy_def = cardStatus.def;
-        Enemy_magdef = cardStatus.magatk;
-        Enemy_speed = cardStatus.speed;
-        List<int> Enemy_skill1 = cardStatus.skill1;
+        Enemy_creature = creature;
+        Enemy_attribute = attribute;
+        Enemy_hp = hp;
+        Enemy_atk = atk;
+        Enemy_magatk = magatk;
+        Enemy_def = def;
+        Enemy_magdef = magatk;
+        Enemy_speed = speed;
+        Enemy_skill1 = skill;
     }
 //シーンを変更する
     private void SendChangeScene()

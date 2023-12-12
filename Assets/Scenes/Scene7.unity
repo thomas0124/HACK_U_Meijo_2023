@@ -1910,9 +1910,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.0002208054
+    y: 0.20783326
     width: 1
-    height: 0.9995584
+    height: 0.5843335
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -2570,6 +2570,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ui: {fileID: 1775618666}
+  Ally: {fileID: 11400000, guid: 2be77f74547eacb478754d1090deb018, type: 2}
   roulettPanel: {fileID: 570442031}
   hpSlider_A: {fileID: 515460871022401757}
   hpSlider_E: {fileID: 7219634194791950721}
@@ -2584,7 +2585,6 @@ MonoBehaviour:
   - {fileID: 325808744}
   - {fileID: 1743829174}
   TurnObj: {fileID: 1554557024}
-  cardInInventory: {fileID: 11400000, guid: 2be77f74547eacb478754d1090deb018, type: 2}
 --- !u!114 &1916655595
 MonoBehaviour:
   m_ObjectHideFlags: 0

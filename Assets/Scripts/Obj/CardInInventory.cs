@@ -15,7 +15,7 @@ public class CardInInventory : ScriptableObject
 public class CardStatus
 {
     public Sprite creature;
-    public attribute attribute;
+    public int attribute;
     public int hp;
     public int atk;
     public int magatk;
@@ -24,7 +24,7 @@ public class CardStatus
     public int speed;
     public List<int> skill1;
 
-    public CardStatus(Sprite sprite, attribute attribute, int hp, int atk, int magatk, int def, int magdef, int speed, List<int> skill1)
+    public CardStatus(Sprite sprite, int attribute, int hp, int atk, int magatk, int def, int magdef, int speed, List<int> skill1)
     {
         this.creature = sprite;
         this.attribute = attribute;
@@ -36,13 +36,4 @@ public class CardStatus
         this.speed = speed;
         this.skill1 = skill1;
     }
-}
-
-public enum attribute
-{
-    fire,
-    water,
-    grass,
-    light,
-    dark
 }
