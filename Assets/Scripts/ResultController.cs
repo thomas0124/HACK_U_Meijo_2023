@@ -27,9 +27,9 @@ public class ResultController : MonoBehaviour
         SceneManager.LoadScene("Scene2");
     }
 
-    //シーン５に移動する
+    //MainSceneに移動する
     public void OnClickedButton5()
     {
-        SceneManager.LoadScene("Scene5");
+        SceneManager.LoadScene("MainScene");
     }
 }
