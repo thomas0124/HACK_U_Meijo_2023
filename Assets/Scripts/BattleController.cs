@@ -37,7 +37,7 @@ public class BattleController : MonoBehaviourPunCallbacks
     private int def;
     private int magdef;
     private int speed;
-    private int[] skill1;
+    private int[] skill1 = new int[3];
 
     private Sprite Enemy_creature;
     private int Enemy_attribute;
@@ -61,7 +61,7 @@ public class BattleController : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        creature = Ally.cardStatusList[Ally.SelectCardId].creature;
+        //creature = Ally.cardStatusList[Ally.SelectCardId].creature;
         attribute = Ally.cardStatusList[Ally.SelectCardId].attribute;
         hp = Ally.cardStatusList[Ally.SelectCardId].hp;
         atk = Ally.cardStatusList[Ally.SelectCardId].atk;
@@ -72,8 +72,9 @@ public class BattleController : MonoBehaviourPunCallbacks
         for (int i = 0; i < Ally.cardStatusList[Ally.SelectCardId].skill1.Count; i++)
         {
             skill1[i] = Ally.cardStatusList[Ally.SelectCardId].skill1[i];
+            Debug.Log("a");
         }
-        SendCharacterStatus(creature, attribute, hp, atk, magatk, def, magdef, speed, skill1);//相手側のEnemyにAllyのステータスが反映される
+        SendCharacterStatus(attribute, hp, atk, magatk, def, magdef, speed, skill1);//相手側のEnemyにAllyのステータスが反映される
 
         //HPバーの最大値を設定
         hpSlider_A.maxValue = Ally.cardStatusList[Ally.SelectCardId].hp;
@@ -264,7 +265,7 @@ public class BattleController : MonoBehaviourPunCallbacks
             {
                 heal = skill.heal;
                 Ally.cardStatusList[Ally.SelectCardId].hp += heal;
-                SendCharacterStatus(creature, attribute, hp, atk, magatk, def, magdef, speed, skill1);
+                SendCharacterStatus(attribute, hp, atk, magatk, def, magdef, speed, skill1);
                 return;
             }
 
@@ -383,21 +384,20 @@ public class BattleController : MonoBehaviourPunCallbacks
         turn = t;
     }
 //相手に自分のキャラのステータスを送る
-    private void SendCharacterStatus(Sprite creature, int attribute, int hp, int atk, int magatk, int def, int magdef, int speed, int[] skill)
+    private void SendCharacterStatus(int attribute, int hp, int atk, int magatk, int def, int magdef, int speed, int[] skill)
     {
-        photonView.RPC(nameof(RPCsetCharacter), RpcTarget.Others, creature, attribute, hp, atk, magatk, def, magdef, speed, skill1);
+        photonView.RPC(nameof(RPCsetCharacter), RpcTarget.Others, attribute, hp, atk, magatk, def, magdef, speed, skill1);
     }
 
     [PunRPC]
-    void RPCsetCharacter(Sprite creature, int attribute, int hp, int atk, int magatk, int def, int magdef, int speed, int[] skill)
+    void RPCsetCharacter(int attribute, int hp, int atk, int magatk, int def, int magdef, int speed, int[] skill)
     {
-        Enemy_creature = creature;
         Enemy_attribute = attribute;
         Enemy_hp = hp;
         Enemy_atk = atk;
         Enemy_magatk = magatk;
         Enemy_def = def;
-        Enemy_magdef = magatk;
+        Enemy_magdef = magdef;
         Enemy_speed = speed;
         Enemy_skill1 = skill;
     }
