@@ -18,17 +18,28 @@ using Photon.Realtime;
 
 public class BattleController : MonoBehaviourPunCallbacks
 {
-    public static bool turn;//ターン判別：true->Ally ,false->Enemy
+    public static bool turn;//ターン判別：true->Ally.cardStatusList[SelectCardId] ,false->Enemy
     private bool isStop = false;
     private bool isStart = false;
     private int damage;//与ダメージ
     private int resultValue;
     private List<Skills.SKILL> skills;//CSVから読み込んだスキル用の構造体リストを格納
-    private int[] nowEnemyStatus = new int[7];//相手のH,A,B,C,D,S,Elementを記憶する
+    private int Action;
 
     private Skills sk;
     public  UIController ui;
-    Character Ally;
+    public CardInInventory Ally;
+
+    private Sprite Enemy_creature;
+    private attribute Enemy_attribute;
+    private int Enemy_hp;
+    private int Enemy_atk;
+    private int Enemy_magatk;
+    private int Enemy_def;
+    private int Enemy_magdef;
+    private int Enemy_speed;
+    private List<int> Enemy_skill1;
+
 
     public GameObject roulettPanel;
     public Slider hpSlider_A;
@@ -39,61 +50,45 @@ public class BattleController : MonoBehaviourPunCallbacks
     public Text[] roulettTexts;
     public Text TurnObj;//ターン表示用
 
-    //キャラクタークラス
-    public class Character
-    {
-        public int H;//HP
-        public int A;//攻撃力
-        public int B;//防御
-        public int C;//とくこう
-        public int D;//とくぼう
-        public int S;//すばやさ
-        public int Element;//属性　：　0->火,　1->水,　2->草,　3->光,　4->闇
-        public int Action;//ルーレットによって決まる行動の値 : 0->攻撃, 1->スキル1, 2->スキル２, 3->スキル３, 4->ミス, 5->ミス
-        public int[] Skill_id = new int[3];//スキルID　: Resorces/skill.csvにあるID参照
-
-        //引数ありのコンストラクタ
-        public Character(int H, int A, int B, int C, int D, int S, int Element, int[] Skill_id){
-            this.H = H;
-            this.A = A;
-            this.B = B;
-            this.C = C;
-            this.D = D;
-            this.S = S;
-            this.Element = Element;
-            this.Skill_id = Skill_id;
-        }
-    }
-
     void Start()
     {
+        SendCharacterStatus(Ally);//相手側のEnemyにAllyのステータスが反映される
 
         //HPバーの最大値を設定
-        hpSlider_A.maxValue = Ally.H;
-        hpSlider_E.maxValue = nowEnemyStatus[0];
+        hpSlider_A.maxValue = Ally.cardStatusList[Ally.SelectCardId].hp;
+        hpSlider_E.maxValue = Enemy_hp;
 
         sk = new Skills();
         //SKILL構造体のcsvファイルを読み込む
         skills = sk.SKILL_read_csv("skill");
 
-        Debug.Log("<Ally>"+Ally.H+","+Ally.A+","+Ally.B+","+Ally.C+","+Ally.D+","+Ally.S+","+Ally.Element);
-        Debug.Log("<Ally>"+nowEnemyStatus[0]+","+nowEnemyStatus[1]+","+nowEnemyStatus[2]+","+nowEnemyStatus[3]+","+nowEnemyStatus[4]+","+nowEnemyStatus[5]+","+nowEnemyStatus[6]);
+        Debug.Log("<Ally>"+Ally.cardStatusList[Ally.SelectCardId].hp+","+Ally.cardStatusList[Ally.SelectCardId].atk+","+Ally.cardStatusList[Ally.SelectCardId].def+","+Ally.cardStatusList[Ally.SelectCardId].magatk+","+Ally.cardStatusList[Ally.SelectCardId].magdef+","+Ally.cardStatusList[Ally.SelectCardId].speed+","+(int)Ally.cardStatusList[Ally.SelectCardId].attribute);
+        Debug.Log("<Enemy>"+Enemy_hp+","+Enemy_atk+","+Enemy_def+","+Enemy_magatk+","+Enemy_magdef+","+Enemy_speed+","+(int)Enemy_attribute);
+        
 
         TurnObj.enabled = false;
         ui.HiddenPanel(roulettPanel);//ルーレットのパネル非表示
 
         //初めのターンがどちらになるか判断
-        if(Ally.S >= nowEnemyStatus[5])
+        if(Ally.cardStatusList[Ally.SelectCardId].speed >= Enemy_speed)
         {
             turn = true;//初手は自分のターン
         }
-        else
-        {
+        else if(Ally.cardStatusList[Ally.SelectCardId].speed <= Enemy_speed){
             turn = false;//初手は相手のターン
+        }else{
+            switch(Random.Range(0,2)){
+                case 0: 
+                    SendSetTurn(true);
+                    break;
+                case 1: 
+                    SendSetTurn(false);
+                    break;
+            }
         }
 
         //hpの初期化
-        ChangeHPber(Ally.H ,nowEnemyStatus[0]);
+        ChangeHPber(Ally.cardStatusList[Ally.SelectCardId].hp ,Enemy_hp);
 
         StartCoroutine(BattleCoroutine());//バトルのコルーチン起動
     }
@@ -115,8 +110,8 @@ public class BattleController : MonoBehaviourPunCallbacks
 
                 if(turn)
                 {
-                    if(isDead(Ally)) SendChangeScene();
-                    ChangeRoulettText(Ally);
+                    if(isDead(Ally.cardStatusList[Ally.SelectCardId].hp)) SendChangeScene();
+                    ChangeRoulettText(Ally.cardStatusList[Ally.SelectCardId].skill1);
 
                     StartButton.SetActive(true);
                     StopButton.SetActive(false);
@@ -157,20 +152,20 @@ public class BattleController : MonoBehaviourPunCallbacks
 
         yield return new WaitForSeconds(6f);                //?6秒待機
 
-        setAction(Ally, ui.resultValue);
+        setAction(ui.resultValue);
 
         ui.HiddenPanel(roulettPanel);                       //*ルーレットのパネル非表示
 
-        calDamage(Ally, nowEnemyStatus);           //*ダメージを計算
+        calDamage();           //*ダメージを計算
 
         yield return new WaitForSeconds(1f);                //?1秒待機
         yield break;
     }
 
 //アクションを記憶
-    public void setAction(Character c, int action)
+    public void setAction(int action)
     {
-        c.Action = action;
+        this.Action = action;
     }
 //ルーレットパネル表示
     public void SendDisplayPanel()
@@ -217,38 +212,38 @@ public class BattleController : MonoBehaviourPunCallbacks
             return 1.0;//属性関係なし
         }
     }
-//与ダメージ量計算(c1 -> c2)
-    private void calDamage(Character c1, int[] nowEnemyStatus){
+//与ダメージ量計算(Ally -> Enemy)
+    private void calDamage(){
         /*
-        ダメージ計算式(int) : ((B or D ÷ 3)-(A or C ÷ 2))*属性相性(1.5 or 1.0)
-        A,Cは自身のステータス　　B,Dは相手のステータス
+        ダメージ計算式(int) : ((def or magdef ÷ 3)-(atk or magatk ÷ 2))*属性相性(1.5 or 1.0)
+        atk,Cは自身のステータス　　B,Dは相手のステータス
         */
         
-        int action = c1.Action;
+        int action = this.Action;
         double damage;//与ダメージ量
         int heal;//ヒール量
         double comp;//属性相性(有効属性の時のみ1.5倍)
         int mag = 1;//スキル倍率
         Skills.SKILL skill = new Skills.SKILL();//発動するスキルを格納
 
-        comp = Compatibility(c1.Element, nowEnemyStatus[6]);
+        comp = Compatibility((int)Ally.cardStatusList[Ally.SelectCardId].attribute, (int)Enemy_attribute);
 
         if(action == 0)
         {
             Debug.Log("こうげき");
-            damage = ((c1.A / 2) - (nowEnemyStatus[2] / 3)) * comp;
+            damage = ((Ally.cardStatusList[Ally.SelectCardId].atk / 2) - (Enemy_def / 3)) * comp;
         }
         else if(action <= 3 && action >= 1)
         {
-            skill = skills[c1.Skill_id[action - 1]];
+            skill = skills[Ally.cardStatusList[Ally.SelectCardId].skill1[action - 1]];
             Debug.Log(skill.name);
 
             //スキルが回復系だった時は自身を回復して終了する
             if(skill.heal >= 0) 
             {
                 heal = skill.heal;
-                c1.H += heal;
-                SendCharacterStatus(Ally.H);
+                Ally.cardStatusList[Ally.SelectCardId].hp += heal;
+                SendCharacterStatus(Ally);
                 return;
             }
 
@@ -256,12 +251,12 @@ public class BattleController : MonoBehaviourPunCallbacks
             if(skill.special == 1)
             {
                 mag = skill.mag;//スキルが特殊系の時
-                damage = ((c1.C * mag / 2) - (nowEnemyStatus[4] / 3)) * comp;
+                damage = ((Ally.cardStatusList[Ally.SelectCardId].magatk * mag / 2) - (Enemy_magdef / 3)) * comp;
             } 
             else
             {
                 mag = skill.mag;//スキルが物理系の時
-                damage = ((c1.A * mag / 2) - (nowEnemyStatus[2] / 3)) * comp;
+                damage = ((Ally.cardStatusList[Ally.SelectCardId].atk * mag / 2) - (Enemy_def / 3)) * comp;
             }
         }
         else
@@ -270,35 +265,35 @@ public class BattleController : MonoBehaviourPunCallbacks
             damage = 0;
         }
 
-        nowEnemyStatus[0] -= (int)damage;
-        if(nowEnemyStatus[0] < 0) nowEnemyStatus[0] = 0;
+        Enemy_hp -= (int)damage;
+        if(Enemy_hp < 0) Enemy_hp = 0;
 
-        ChangeHPber(c1.H, nowEnemyStatus[0]);
+        ChangeHPber(Ally.cardStatusList[Ally.SelectCardId].hp, Enemy_hp);
     }
 
 //ルーレットのスキル表記を変更する
 
-    public void ChangeRoulettText(Character c)
+    public void ChangeRoulettText(List<int> skill1)
     {
-        photonView.RPC(nameof(RPCChangeRoulettText), RpcTarget.All, c);
+        photonView.RPC(nameof(RPCChangeRoulettText), RpcTarget.All, skill1);
     }
     [PunRPC]
-    private void RPCChangeRoulettText(Character c)
+    private void RPCChangeRoulettText(List<int> skill1)
     {
         Skills.SKILL skill = new Skills.SKILL();//発動するスキルを格納
         for(int i = 0; i < 3; i++)
         {
-            skill = skills[c.Skill_id[i]];
+            skill = skills[skill1[i]];
 
             roulettTexts[i + 1].text = skill.name;
         }
     }
 
 //HPが０以下になったらtrueを返す
-    public bool isDead(Character c)
+    public bool isDead(int hp)
     {
-        if(c.H <= 0){
-            c.H = 0;
+        if(hp <= 0){
+            hp = 0;
             return true;
         }else{
             return false;
@@ -356,52 +351,45 @@ public class BattleController : MonoBehaviourPunCallbacks
         else turn = true;
     }
 
-    
+    private void SendSetTurn(bool t)
+    {
+        photonView.RPC(nameof(RPCChangeTurn), RpcTarget.Others, t);
+    }
+
+    [PunRPC]
+    private void RPCSetTurn(bool t)
+    {
+        turn = t;
+    }
 //相手に自分のキャラのステータスを送る
-    //相手側では送ったステータスでnowEnemyStatusを初期化
-    private void SendCharacterStatus(int H, int A, int B, int C, int D, int S, int Element)
+    private void SendCharacterStatus(CardInInventory cardInInventory)
     {
-        photonView.RPC(nameof(RPCsetCharacter), RpcTarget.Others, H, A, B, C, D, S, Element);
-    }
-
-    //2回目以降
-    private void SendCharacterStatus(int H)
-    {
-        photonView.RPC(nameof(RPCsetNowStatus), RpcTarget.Others, H);
+        photonView.RPC(nameof(RPCsetCharacter), RpcTarget.Others, cardInInventory.cardStatusList[cardInInventory.SelectCardId]);
     }
 
     [PunRPC]
-    void RPCsetNowStatus(int H)
+    void RPCsetCharacter(CardStatus cardStatus)
     {
-        nowEnemyStatus[0] = H;
-    }
-
-    [PunRPC]
-    void RPCsetCharacter(int H, int A, int B, int C, int D, int S, int Element)
-    {
-        nowEnemyStatus[0] = H;
-        nowEnemyStatus[1] = A;
-        nowEnemyStatus[2] = B;
-        nowEnemyStatus[3] = C;
-        nowEnemyStatus[4] = D;
-        nowEnemyStatus[5] = Element;
-    }
-
-//この関数でAllyのステータスをインプットする
-    public void SetStatus(int h, int a, int b, int c, int d, int s, int element, int[] skill_id)
-    {
-        Ally = new Character(h,a,b,c,d,s,element,skill_id);
-
-        SendCharacterStatus(Ally.H, Ally.A, Ally.B, Ally.C, Ally.D, Ally.S, Ally.Element);//相手側のEnemyにAllyのステータスが反映される
+        Enemy_creature = cardStatus.creature;
+        Enemy_attribute = cardStatus.attribute;
+        Enemy_hp = cardStatus.hp;
+        Enemy_atk = cardStatus.atk;
+        Enemy_magatk = cardStatus.magatk;
+        Enemy_def = cardStatus.def;
+        Enemy_magdef = cardStatus.magatk;
+        Enemy_speed = cardStatus.speed;
+        List<int> Enemy_skill1 = cardStatus.skill1;
     }
 //シーンを変更する
     private void SendChangeScene()
     {
         photonView.RPC(nameof(RPCChangeScene), RpcTarget.All);
+        
     }
     [PunRPC]
     private void RPCChangeScene()
     {
         SceneManager.LoadScene("Scene8");
     }
+
 }
