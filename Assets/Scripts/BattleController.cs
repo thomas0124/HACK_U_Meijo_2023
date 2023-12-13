@@ -15,6 +15,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
+using DG.Tweening;
 
 public class BattleController : MonoBehaviourPunCallbacks
 {
@@ -27,8 +28,10 @@ public class BattleController : MonoBehaviourPunCallbacks
     private int Action;
 
     private Skills sk;
-    public  UIController ui;
+    public UIController ui;
     public CardInInventory Ally;
+
+    public Image Ally_image;
     private Sprite creature;
     private int attribute;
     private int hp;
@@ -37,8 +40,9 @@ public class BattleController : MonoBehaviourPunCallbacks
     private int def;
     private int magdef;
     private int speed;
-    private int[] skill1 = new int[3];
+    private int[] skill1 = new int[] { 0, 0, 0 };
 
+    public Image Enemy_image;
     private Sprite Enemy_creature;
     private int Enemy_attribute;
     private int Enemy_hp;
@@ -48,7 +52,8 @@ public class BattleController : MonoBehaviourPunCallbacks
     private int Enemy_magdef;
     private int Enemy_speed;
     private int[] Enemy_skill1;
-
+    bool getEnemyStatus = false;
+    bool getEnemySprite = false;
 
     public GameObject roulettPanel;
     public Slider hpSlider_A;
@@ -58,10 +63,20 @@ public class BattleController : MonoBehaviourPunCallbacks
     public GameObject StopButton;
     public Text[] roulettTexts;
     public Text TurnObj;//ターン表示用
+    public AfterKariLoading afterKariLoading;
 
-    void Start()
+    private void Awake()
     {
-        //creature = Ally.cardStatusList[Ally.SelectCardId].creature;
+         SpriteSerializer.Register();
+    }
+    private void Start()
+    {
+        StartCoroutine(StartCor());
+    }
+    IEnumerator StartCor()
+    {
+        yield return new WaitUntil(() => afterKariLoading.eComp);
+        creature = Ally.cardStatusList[Ally.SelectCardId].creature;
         attribute = Ally.cardStatusList[Ally.SelectCardId].attribute;
         hp = Ally.cardStatusList[Ally.SelectCardId].hp;
         atk = Ally.cardStatusList[Ally.SelectCardId].atk;
@@ -69,12 +84,21 @@ public class BattleController : MonoBehaviourPunCallbacks
         def = Ally.cardStatusList[Ally.SelectCardId].def;
         magdef = Ally.cardStatusList[Ally.SelectCardId].magdef;
         speed = Ally.cardStatusList[Ally.SelectCardId].speed;
-        for (int i = 0; i < Ally.cardStatusList[Ally.SelectCardId].skill1.Count; i++)
+        for (int i = 0; i < Ally.cardStatusList[Ally.SelectCardId].skill1.Length; i++)
         {
             skill1[i] = Ally.cardStatusList[Ally.SelectCardId].skill1[i];
-            Debug.Log("a");
         }
-        SendCharacterStatus(attribute, hp, atk, magatk, def, magdef, speed, skill1);//相手側のEnemyにAllyのステータスが反映される
+
+        StartCoroutine(enemyStatus());
+        TurnObj.gameObject.SetActive(false);
+        roulettPanel.gameObject.SetActive(false);//ルーレットのパネル非表示
+        yield return new WaitUntil(() => getEnemyStatus);
+        yield return new WaitForSeconds(1.0f);
+        getEnemyStatus = false;
+        SendSprite(creature);
+        yield return new WaitUntil(() => getEnemySprite);
+        Ally_image.sprite = creature;
+        Enemy_image.sprite = Enemy_creature;
 
         //HPバーの最大値を設定
         hpSlider_A.maxValue = Ally.cardStatusList[Ally.SelectCardId].hp;
@@ -83,29 +107,23 @@ public class BattleController : MonoBehaviourPunCallbacks
         sk = new Skills();
         //SKILL構造体のcsvファイルを読み込む
         skills = sk.SKILL_read_csv("skill");
-
-        Debug.Log("<Ally>"+Ally.cardStatusList[Ally.SelectCardId].hp+","+Ally.cardStatusList[Ally.SelectCardId].atk+","+Ally.cardStatusList[Ally.SelectCardId].def+","+Ally.cardStatusList[Ally.SelectCardId].magatk+","+Ally.cardStatusList[Ally.SelectCardId].magdef+","+Ally.cardStatusList[Ally.SelectCardId].speed+","+(int)Ally.cardStatusList[Ally.SelectCardId].attribute);
-        Debug.Log("<Enemy>"+Enemy_hp+","+Enemy_atk+","+Enemy_def+","+Enemy_magatk+","+Enemy_magdef+","+Enemy_speed+","+(int)Enemy_attribute);
-        
-
-        TurnObj.enabled = false;
-        ui.HiddenPanel(roulettPanel);//ルーレットのパネル非表示
-
         //初めのターンがどちらになるか判断
-        if(Ally.cardStatusList[Ally.SelectCardId].speed >= Enemy_speed)
+        if (Ally.cardStatusList[Ally.SelectCardId].speed > Enemy_speed)
         {
             turn = true;//初手は自分のターン
         }
-        else if(Ally.cardStatusList[Ally.SelectCardId].speed <= Enemy_speed){
+        else if(Ally.cardStatusList[Ally.SelectCardId].speed < Enemy_speed){
             turn = false;//初手は相手のターン
-        }else{
-            switch(Random.Range(0,2)){
-                case 0: 
-                    SendSetTurn(true);
-                    break;
-                case 1: 
-                    SendSetTurn(false);
-                    break;
+        }
+        else
+        {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                turn  = true;//初手は自分のターン
+            }
+            else
+            {
+                turn = false;//初手は相手のターン
             }
         }
 
@@ -115,6 +133,14 @@ public class BattleController : MonoBehaviourPunCallbacks
         StartCoroutine(BattleCoroutine());//バトルのコルーチン起動
     }
 
+    public IEnumerator enemyStatus()
+    {
+        SendCharacterStatus(attribute, hp, atk, magatk, def, magdef, speed, skill1);//相手側のEnemyにAllyのステータスが反映される
+        yield return new WaitUntil(() => getEnemyStatus);
+        Debug.Log("<Ally>" + Ally.cardStatusList[Ally.SelectCardId].hp + "," + Ally.cardStatusList[Ally.SelectCardId].atk + "," + Ally.cardStatusList[Ally.SelectCardId].def + "," + Ally.cardStatusList[Ally.SelectCardId].magatk + "," + Ally.cardStatusList[Ally.SelectCardId].magdef + "," + Ally.cardStatusList[Ally.SelectCardId].speed + "," + (int)Ally.cardStatusList[Ally.SelectCardId].attribute);
+        Debug.Log("<Enemy>" + Enemy_hp + "," + Enemy_atk + "," + Enemy_def + "," + Enemy_magatk + "," + Enemy_magdef + "," + Enemy_speed + "," + (int)Enemy_attribute);
+    }
+
     //バトルコルーチン本体
     public IEnumerator BattleCoroutine()
     {
@@ -122,13 +148,8 @@ public class BattleController : MonoBehaviourPunCallbacks
         {
             for(int j = 0; j < 2; j++){
                 yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
-
                 //ターン表示
-                ChangeTurnObj(TurnObj);
-                if(turn) TurnObj.text = "Your Turn";
-                else TurnObj.text = "Rival Turn";
-                yield return new WaitForSeconds(1f);//?1秒待機
-                ChangeTurnObj(TurnObj);
+                StartCoroutine(TurnText());
 
                 if(turn)
                 {
@@ -156,7 +177,7 @@ public class BattleController : MonoBehaviourPunCallbacks
 
     private IEnumerator AllyTurn()
     {
-        SendDisplayPanel();                                 //*ルーレットのパネル表示
+        roulettPanel.gameObject.SetActive(true);//*ルーレットのパネル表示
 
         StopButton.SetActive(false);                        //*ストップボタン非表示
         StartButton.SetActive(true);                        //*スタートボタン表示
@@ -194,6 +215,7 @@ public class BattleController : MonoBehaviourPunCallbacks
     {
         photonView.RPC(nameof(RPCDisplayPanel), RpcTarget.All);
     }
+    [PunRPC]
     private void RPCDisplayPanel()
     {
         ui.DisplayPanel(roulettPanel);
@@ -295,19 +317,18 @@ public class BattleController : MonoBehaviourPunCallbacks
 
 //ルーレットのスキル表記を変更する
 
-    public void ChangeRoulettText(List<int> skill1)
+    public void ChangeRoulettText(int[] skill1)
     {
         photonView.RPC(nameof(RPCChangeRoulettText), RpcTarget.All, skill1);
     }
     [PunRPC]
-    private void RPCChangeRoulettText(List<int> skill1)
+    private void RPCChangeRoulettText(int[] skill1)
     {
         Skills.SKILL skill = new Skills.SKILL();//発動するスキルを格納
-        for(int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
             skill = skills[skill1[i]];
-
-            roulettTexts[i + 1].text = skill.name;
+            roulettTexts[i].text = skill.name;
         }
     }
 
@@ -384,24 +405,38 @@ public class BattleController : MonoBehaviourPunCallbacks
         turn = t;
     }
 //相手に自分のキャラのステータスを送る
-    private void SendCharacterStatus(int attribute, int hp, int atk, int magatk, int def, int magdef, int speed, int[] skill)
+    private void SendCharacterStatus(int eattribute, int ehp, int eatk, int emagatk, int edef, int emagdef, int espeed, int[]eskill1)
     {
-        photonView.RPC(nameof(RPCsetCharacter), RpcTarget.Others, attribute, hp, atk, magatk, def, magdef, speed, skill1);
+        photonView.RPC(nameof(RPCsetCharacter), RpcTarget.Others, eattribute, ehp, eatk, emagatk, edef, emagdef, espeed, eskill1);
     }
 
     [PunRPC]
-    void RPCsetCharacter(int attribute, int hp, int atk, int magatk, int def, int magdef, int speed, int[] skill)
+    void RPCsetCharacter(int eattribute, int ehp, int eatk, int emagatk, int edef, int emagdef, int espeed, int[] eskill)
     {
-        Enemy_attribute = attribute;
-        Enemy_hp = hp;
-        Enemy_atk = atk;
-        Enemy_magatk = magatk;
-        Enemy_def = def;
-        Enemy_magdef = magdef;
-        Enemy_speed = speed;
-        Enemy_skill1 = skill;
+        Enemy_attribute = eattribute;
+        Enemy_hp = ehp;
+        Enemy_atk = eatk;
+        Enemy_magatk = emagatk;
+        Enemy_def = edef;
+        Enemy_magdef = emagdef;
+        Enemy_speed = espeed;
+        Enemy_skill1 = eskill;
+        getEnemyStatus = true;
     }
-//シーンを変更する
+    private void SendSprite(Sprite sprite)
+    {
+        photonView.RPC(nameof(SetSprite), RpcTarget.Others, sprite);
+    }
+
+    [PunRPC]
+    void SetSprite(Sprite sprite)
+    {
+        Debug.Log("b");
+        Enemy_creature = sprite;
+        getEnemySprite = true;
+    }
+
+    //シーンを変更する
     private void SendChangeScene()
     {
         photonView.RPC(nameof(RPCChangeScene), RpcTarget.All);
@@ -412,5 +447,15 @@ public class BattleController : MonoBehaviourPunCallbacks
     {
         SceneManager.LoadScene("Scene8");
     }
-
+    private IEnumerator TurnText()
+    {
+        TurnObj.gameObject.SetActive(false);
+        TurnObj.transform.localScale = new Vector3(0, 0, 0);
+        TurnObj.gameObject.SetActive(true);
+        TurnObj.transform.DOScale(new Vector3(1.0f, 1.0f, 0), 0.5f).SetEase(Ease.OutBounce);
+        if (turn) TurnObj.text = "Your Turn";
+        else TurnObj.text = "Rival Turn";
+        yield return new WaitForSeconds(1.2f);//0.8秒待機
+        TurnObj.gameObject.SetActive(false);
+    }
 }

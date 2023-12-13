@@ -22,9 +22,9 @@ public class CardStatus
     public int def;
     public int magdef;
     public int speed;
-    public List<int> skill1;
+    public int[] skill1;
 
-    public CardStatus(Sprite sprite, int attribute, int hp, int atk, int magatk, int def, int magdef, int speed, List<int> skill1)
+    public CardStatus(Sprite sprite, int attribute, int hp, int atk, int magatk, int def, int magdef, int speed, int[] skill1)
     {
         this.creature = sprite;
         this.attribute = attribute;

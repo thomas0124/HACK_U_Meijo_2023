@@ -12,7 +12,7 @@ public class CardStartAdd : MonoBehaviour
     }
     void Start()
     {
-        List<int> skill = new List<int>() { 1, 1, 1 };
+        int[] skill = new int[] { 1, 1, 1 };
         cardChange.CardAdd(sprite, 1, 1, 1, 1, 1, 1, 1, skill);
     }
 }

@@ -19,4 +19,8 @@ public class SendPhotonMessage : MonoBehaviourPunCallbacks
     {
         afterKariLoading.eComp = index;
     }
+    public void reconnect()
+    {
+        PhotonNetwork.ReconnectAndRejoin();
+    }
 }

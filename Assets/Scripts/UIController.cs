@@ -7,7 +7,7 @@ using Photon.Realtime;
 
 public class UIController : MonoBehaviour
 {
-
+    [SerializeField]
     private BattleController battle;
 
     //ルーレット用
@@ -25,7 +25,7 @@ public class UIController : MonoBehaviour
     
     private void Start()
     {
-        battle = new BattleController();
+        
     }
     
     void Update()

@@ -6,7 +6,7 @@ public class CardChange : MonoBehaviour
 {
     public CardInInventory cardInInventory;
     private CardStatus cardStatus;
-    public void CardAdd(Sprite sprite,int attribute,int hp,int atk,int magatk,int def,int magdef,int speed,List<int> skill)
+    public void CardAdd(Sprite sprite,int attribute,int hp,int atk,int magatk,int def,int magdef,int speed,int[] skill)
     {
         cardStatus = new CardStatus(sprite, attribute, hp, atk, magatk, def, magdef, speed, skill);
         cardInInventory.cardStatusList.Add(cardStatus);

@@ -15,7 +15,6 @@ public class AfterKariLoading : MonoBehaviour
     public Image loadingScreen;
     public TextMeshProUGUI waitingText;
     [SerializeField]
-    private bool comp;
     public bool eComp;
     int i = 0;
     bool flag = true;
@@ -40,7 +39,6 @@ public class AfterKariLoading : MonoBehaviour
         yield return new WaitForSeconds(1.2f);
         vs.gameObject.SetActive(true);
         vs.transform.DOScale(new Vector3(1.8f, 1.8f, 0), 0.5f).SetEase(Ease.OutBounce);
-        comp = true;
         sendPhotonMessage.SendComp();
         while (!eComp)
         {
@@ -49,6 +47,8 @@ public class AfterKariLoading : MonoBehaviour
             if (i > 50 && flag)
             {
                 flag = false;
+                Debug.Log("a");
+                sendPhotonMessage.reconnect();
                 waitingText.DOFade(endValue: 1f, duration: 0.5f);
             }
         }
