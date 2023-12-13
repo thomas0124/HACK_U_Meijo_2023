@@ -49,9 +49,10 @@ MonoBehaviour:
   - RPCsetCharacter
   - RPCsetNowStatus
   - RPCSetTurn
-  - RPCDisplayPanel
+  - RPCsetCharacter1
   - SetEnemyStatus
   - SetSprite
+  - RPCDisplayPanel
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

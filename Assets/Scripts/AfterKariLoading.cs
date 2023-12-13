@@ -61,5 +61,6 @@ public class AfterKariLoading : MonoBehaviour
         loadingScreen.DOFade(endValue: 0f, duration: 1f);
         yield return new WaitForSeconds(0.2f);
         vs.DOFade(endValue: 0f, duration: 1.1f);
+        gameObject.SetActive(false);
     }
 }
