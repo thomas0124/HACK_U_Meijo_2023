@@ -147,14 +147,14 @@ public class BattleController : MonoBehaviourPunCallbacks
         for(int i = 0; i < 5; i++)
         {
             for(int j = 0; j < 2; j++){
-                yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+                yield return new WaitForSeconds(2.0f);
                 //ターン表示
                 StartCoroutine(TurnText());
 
                 if(turn)
                 {
                     if(isDead(Ally.cardStatusList[Ally.SelectCardId].hp)) SendChangeScene();
-                    ChangeRoulettText(Ally.cardStatusList[Ally.SelectCardId].skill1);
+                    //ChangeRoulettText(Ally.cardStatusList[Ally.SelectCardId].skill1);
 
                     StartButton.SetActive(true);
                     StopButton.SetActive(false);
@@ -177,7 +177,7 @@ public class BattleController : MonoBehaviourPunCallbacks
 
     private IEnumerator AllyTurn()
     {
-        roulettPanel.gameObject.SetActive(true);//*ルーレットのパネル表示
+        SendDisplayPanel();//*ルーレットのパネル表示
 
         StopButton.SetActive(false);                        //*ストップボタン非表示
         StartButton.SetActive(true);                        //*スタートボタン表示
@@ -185,7 +185,7 @@ public class BattleController : MonoBehaviourPunCallbacks
         yield return new WaitUntil(() => isStart);          //?スタートボタンが押されるまで待機
         isStart = false;
 
-        StartButton.SetActive(false);                       //*スタートボタンをストップボタンに切り替え
+        StartButton.SetActive(false);                    //*スタートボタンをストップボタンに切り替え
         StopButton.SetActive(true);
 
         yield return new WaitUntil(() => isStop);           //?ストップボタンが押されるまで待機
@@ -431,7 +431,7 @@ public class BattleController : MonoBehaviourPunCallbacks
     [PunRPC]
     void SetSprite(Sprite sprite)
     {
-        Debug.Log("b");
+        Debug.Log(sprite);
         Enemy_creature = sprite;
         getEnemySprite = true;
     }

@@ -20,13 +20,13 @@ public class PlayerConnect : MonoBehaviourPunCallbacks
         }
         if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
         {
-            if (PhotonNetwork.IsMasterClient)
-            {
-                Debug.Log("Close");
-                PhotonNetwork.CurrentRoom.IsOpen = false;
-            }
             if (flag)
             {
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    Debug.Log("Close");
+                    PhotonNetwork.CurrentRoom.IsOpen = false;
+                }
                 Debug.Log("load");
                 loadScene.StartLoad();
                 flag = false;
