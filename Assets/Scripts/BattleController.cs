@@ -19,17 +19,22 @@ using DG.Tweening;
 
 public class BattleController : MonoBehaviourPunCallbacks
 {
-    public static bool turn;//ターン判別：true->Ally.cardStatusList[SelectCardId] ,false->Enemy
+    [HideInInspector] public static bool turn;//ターン判別：true->Ally ,false->Enemy
+    public int roulettResult;
     private bool isStop = false;
     private bool isStart = false;
+    private bool isDisplayPanel = false;
     private int damage;//与ダメージ
     private int resultValue;
     private List<Skills.SKILL> skills;//CSVから読み込んだスキル用の構造体リストを格納
     private int Action;
+    private bool conf = false; //接続確認用
+    private bool finishTakeDamage = false;//ダメージを反映したことを知らせるフラグ
 
     private Skills sk;
     public UIController ui;
     public CardInInventory Ally;
+    private AfterKariLoading loading;
 
     public Image Ally_image;
     private Sprite creature;
@@ -67,7 +72,7 @@ public class BattleController : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
-         SpriteSerializer.Register();
+        SpriteSerializer.Register();
     }
     private void Start()
     {
@@ -75,7 +80,12 @@ public class BattleController : MonoBehaviourPunCallbacks
     }
     IEnumerator StartCor()
     {
+        Debug.Log("<StartCor>");
+
         yield return new WaitUntil(() => afterKariLoading.eComp);
+
+        Debug.Log("finished afterKariLoading.eComp");
+
         creature = Ally.cardStatusList[Ally.SelectCardId].creature;
         attribute = Ally.cardStatusList[Ally.SelectCardId].attribute;
         hp = Ally.cardStatusList[Ally.SelectCardId].hp;
@@ -89,75 +99,106 @@ public class BattleController : MonoBehaviourPunCallbacks
             skill1[i] = Ally.cardStatusList[Ally.SelectCardId].skill1[i];
         }
 
+        Debug.Log("Ally data loaded");
+
         StartCoroutine(enemyStatus());
+
         TurnObj.gameObject.SetActive(false);
-        roulettPanel.gameObject.SetActive(false);//ルーレットのパネル非表示
+        SendHiddenPanel();//ルーレットパネル非表示
+
         yield return new WaitUntil(() => getEnemyStatus);
         yield return new WaitForSeconds(1.0f);
         getEnemyStatus = false;
+
+        Debug.Log("Enemy data loaded");
+
         SendSprite(creature);
         yield return new WaitUntil(() => getEnemySprite);
+
+        Debug.Log("Send EnemySprite");
+
+        //画像を設定する
         Ally_image.sprite = creature;
         Enemy_image.sprite = Enemy_creature;
 
         //HPバーの最大値を設定
-        hpSlider_A.maxValue = Ally.cardStatusList[Ally.SelectCardId].hp;
+        hpSlider_A.maxValue = hp;
         hpSlider_E.maxValue = Enemy_hp;
 
-        sk = new Skills();
         //SKILL構造体のcsvファイルを読み込む
+        sk = new Skills();
         skills = sk.SKILL_read_csv("skill");
+
         //初めのターンがどちらになるか判断
-        if (Ally.cardStatusList[Ally.SelectCardId].speed > Enemy_speed)
+        if (speed > Enemy_speed)
         {
             turn = true;//初手は自分のターン
         }
-        else if(Ally.cardStatusList[Ally.SelectCardId].speed < Enemy_speed){
+        else if(speed < Enemy_speed){
             turn = false;//初手は相手のターン
         }
         else
         {
-            if (PhotonNetwork.IsMasterClient)
+            if (PhotonNetwork.IsMasterClient == true) 
             {
-                turn  = true;//初手は自分のターン
+                turn = true;
             }
-            else
-            {
-                turn = false;//初手は相手のターン
+            else {
+                turn = false;
             }
         }
 
+        if(turn) Debug.Log("first My turn");
+        else Debug.Log("first Enemy turn");
+
         //hpの初期化
-        ChangeHPber(Ally.cardStatusList[Ally.SelectCardId].hp ,Enemy_hp);
+        ChangeHPber(hp ,Enemy_hp);
 
         StartCoroutine(BattleCoroutine());//バトルのコルーチン起動
+
+        Debug.Log("</StartCor>");
     }
 
     public IEnumerator enemyStatus()
     {
+        Debug.Log("<enemyStatus>");
+
         SendCharacterStatus(attribute, hp, atk, magatk, def, magdef, speed, skill1);//相手側のEnemyにAllyのステータスが反映される
         yield return new WaitUntil(() => getEnemyStatus);
-        Debug.Log("<Ally>" + Ally.cardStatusList[Ally.SelectCardId].hp + "," + Ally.cardStatusList[Ally.SelectCardId].atk + "," + Ally.cardStatusList[Ally.SelectCardId].def + "," + Ally.cardStatusList[Ally.SelectCardId].magatk + "," + Ally.cardStatusList[Ally.SelectCardId].magdef + "," + Ally.cardStatusList[Ally.SelectCardId].speed + "," + (int)Ally.cardStatusList[Ally.SelectCardId].attribute);
-        Debug.Log("<Enemy>" + Enemy_hp + "," + Enemy_atk + "," + Enemy_def + "," + Enemy_magatk + "," + Enemy_magdef + "," + Enemy_speed + "," + (int)Enemy_attribute);
+        Debug.Log("[Ally]" + hp + "," + atk + "," + def + "," + magatk + "," + magdef + "," + speed + "," + (int)attribute);
+        Debug.Log("[Enemy]" + Enemy_hp + "," + Enemy_atk + "," + Enemy_def + "," + Enemy_magatk + "," + Enemy_magdef + "," + Enemy_speed + "," + (int)Enemy_attribute);
+        
+        Debug.Log("</enemyStatus>");
     }
 
     //バトルコルーチン本体
     public IEnumerator BattleCoroutine()
     {
+        //?スタートボタンとストップボタンを非表示
+        StartButton.SetActive(false);
+        StopButton.SetActive(false);
+
         for(int i = 0; i < 5; i++)
         {
             for(int j = 0; j < 2; j++){
+
+                Debug.Log("<BattleCoroutine>");
+
+                if(roulettPanel.activeSelf == false) SendHiddenPanel();
                 yield return new WaitForSeconds(2.0f);
                 //ターン表示
-                StartCoroutine(TurnText());
+                yield return StartCoroutine(TurnText(turn));
 
-                if(turn)
+                //ルーレットの状態を初期化
+                isStart = false;
+                isStop = false;
+
+                if(turn  == true)
                 {
-                    if(isDead(Ally.cardStatusList[Ally.SelectCardId].hp)) SendChangeScene();
-                    //ChangeRoulettText(Ally.cardStatusList[Ally.SelectCardId].skill1);
 
-                    StartButton.SetActive(true);
-                    StopButton.SetActive(false);
+                    if(isDead(hp)) SendChangeScene();
+                    ChangeRoulettText(skill1);
+                    Debug.Log("自分のターン");
 
                     yield return StartCoroutine(AllyTurn());
 
@@ -165,10 +206,14 @@ public class BattleController : MonoBehaviourPunCallbacks
                 }
                 else
                 {
+                    //?スタートボタンとストップボタンを非表示
                     StartButton.SetActive(false);
                     StopButton.SetActive(false);
 
+                    Debug.Log("相手のターン");
+                    //SendStartCoroutine(); //相手の方でコルーチン起動
                     yield return new WaitUntil(() => turn);
+
                 }
             }
         }
@@ -177,32 +222,95 @@ public class BattleController : MonoBehaviourPunCallbacks
 
     private IEnumerator AllyTurn()
     {
-        SendDisplayPanel();//*ルーレットのパネル表示
+        Debug.Log("<AllyTurn>");
 
-        StopButton.SetActive(false);                        //*ストップボタン非表示
+        SendDisplayPanel();                                 //*ルーレットパネル表示
+
+        yield return new WaitForSeconds(1f);                //?1秒待機
+
         StartButton.SetActive(true);                        //*スタートボタン表示
 
-        yield return new WaitUntil(() => isStart);          //?スタートボタンが押されるまで待機
+        yield return new WaitUntil(() => conf);             //!相手側の処理が終わるまで待機
+        conf = false;
+
+        yield return new WaitUntil(() => isStart);          //*スタートボタンが押されるまで待機（スタートボタン非表示、ストップボタン表示）
         isStart = false;
 
-        StartButton.SetActive(false);                    //*スタートボタンをストップボタンに切り替え
-        StopButton.SetActive(true);
+        yield return new WaitUntil(() => conf);             //!相手側の処理が終わるまで待機
+        conf = false;
 
-        yield return new WaitUntil(() => isStop);           //?ストップボタンが押されるまで待機
+        yield return new WaitForSeconds(1f);                //?1秒待機
+
+        yield return new WaitUntil(() => isStop);           //*ストップボタンが押されるまで待機（ストップボタン非表示）
         isStop = false;
 
-        StopButton.SetActive(false);                        //*ストップボタン非表示
+        StopButton.SetActive(false);
+
+        yield return new WaitUntil(() => conf);             //!相手側の処理が終わるまで待機
+        conf = false;
 
         yield return new WaitForSeconds(6f);                //?6秒待機
 
         setAction(ui.resultValue);
+        
+        SendHiddenPanel();                                  //*ルーレットのパネル非表示
 
-        ui.HiddenPanel(roulettPanel);                       //*ルーレットのパネル非表示
+        yield return new WaitUntil(() => conf);             //!相手側の処理が終わるまで待機
+        conf = false;
 
-        calDamage();           //*ダメージを計算
+        calDamage();                                        //*ダメージを計算,ダメージを与える
+
+        yield return new WaitUntil(() => finishTakeDamage); //*ダメージを反映するまで待機
+        finishTakeDamage = false;
 
         yield return new WaitForSeconds(1f);                //?1秒待機
+
+        Debug.Log("</AllyTurn>");
+
         yield break;
+    }
+
+//Updateで処理の終了を監視する
+    void FixedUpdate()
+    {
+        if(turn == true) return; //自分のターン中なら処理しない
+
+        if(roulettPanel.activeSelf == true && isDisplayPanel == false) {//ルーレットパネルがアクティブ状態か調べる
+            SendConf();
+            isDisplayPanel = true;
+        }
+
+        if(roulettPanel.activeSelf == false && isDisplayPanel == true) {//ルーレットパネルが非アクティブ状態か調べる
+            SendConf();
+            isDisplayPanel = false;
+        }
+        
+        if(isStart) SendConf();//ルーレットが開始されたとき
+
+        if(isStop) SendConf();//ルーレットが停止した時
+
+    }
+
+//相手の方でコルーチン開始
+    public void SendStartCoroutine()
+    {
+        photonView.RPC(nameof(RPCStartCoroutine), RpcTarget.All);
+    }
+    [PunRPC]
+    private void RPCStartCoroutine()
+    {
+        StartCoroutine(AllyTurn());
+    }
+
+//RPCの処理が自分側で終わったことを通知する
+    public void SendConf()
+    {
+        photonView.RPC(nameof(RPCSendConf), RpcTarget.Others);
+    }
+    [PunRPC]
+    private void RPCSendConf()
+    {
+        this.conf = true;
     }
 
 //アクションを記憶
@@ -221,16 +329,27 @@ public class BattleController : MonoBehaviourPunCallbacks
         ui.DisplayPanel(roulettPanel);
     }
 
+//ルーレットパネル非表示
+    public void SendHiddenPanel()
+    {
+        photonView.RPC(nameof(RPCHiddenPanel), RpcTarget.All);
+    }
+    [PunRPC]
+    private void RPCHiddenPanel()
+    {
+        ui.HiddenPanel(roulettPanel);
+    }
+
 //HPバーの表記を共有
     public void ChangeHPber(int ally_h, int enemy_h)
     {
-        photonView.RPC(nameof(RPCChangeHPber), RpcTarget.All, ally_h, enemy_h);
+        photonView.RPC(nameof(RPCChangeHPber), RpcTarget.Others, ally_h, enemy_h);
     }
     [PunRPC]
     private void RPCChangeHPber(int ally_h, int enemy_h)
     {
-        ui.ChangeAllySlider(ally_h, hpSlider_A, hpText_A);
-        ui.ChangeEnemySlider(enemy_h, hpSlider_E);
+        ui.ChangeHPSlider(enemy_h, ally_h, hpSlider_A, hpSlider_E, hpText_A);
+        Debug.LogFormat("Ally.HP = {0} , Enemy.HP = {1}", enemy_h, ally_h);
     }
 //属性相性を判別 : 入力　(攻撃属性,受ける属性)、返り値は攻撃倍率
     public double Compatibility(int e1, int e2)
@@ -260,47 +379,62 @@ public class BattleController : MonoBehaviourPunCallbacks
     private void calDamage(){
         /*
         ダメージ計算式(int) : ((def or magdef ÷ 3)-(atk or magatk ÷ 2))*属性相性(1.5 or 1.0)
-        atk,Cは自身のステータス　　B,Dは相手のステータス
+        atk,magatkは自身のステータス　　def,magdefは相手のステータス
         */
         
         int action = this.Action;
         double damage;//与ダメージ量
-        int heal;//ヒール量
+        int heal = 0;//ヒール量
         double comp;//属性相性(有効属性の時のみ1.5倍)
         int mag = 1;//スキル倍率
         Skills.SKILL skill = new Skills.SKILL();//発動するスキルを格納
 
-        comp = Compatibility((int)Ally.cardStatusList[Ally.SelectCardId].attribute, (int)Enemy_attribute);
+        comp = Compatibility(attribute, (int)Enemy_attribute);
 
         if(action == 0)
         {
             Debug.Log("こうげき");
-            damage = ((Ally.cardStatusList[Ally.SelectCardId].atk / 2) - (Enemy_def / 3)) * comp;
+            damage = ((atk / 2) - (Enemy_def / 3)) * comp;
+            if(damage <= 0) damage = 0;
         }
         else if(action <= 3 && action >= 1)
         {
-            skill = skills[Ally.cardStatusList[Ally.SelectCardId].skill1[action - 1]];
-            Debug.Log(skill.name);
+            skill = skills[skill1[action - 1]];
+            Debug.Log("スキル : [" + skill.name + "]");
 
             //スキルが回復系だった時は自身を回復して終了する
-            if(skill.heal >= 0) 
+            if(skill.heal > 0) 
             {
                 heal = skill.heal;
-                Ally.cardStatusList[Ally.SelectCardId].hp += heal;
-                SendCharacterStatus(attribute, hp, atk, magatk, def, magdef, speed, skill1);
+
+                Debug.Log("ヒール量 : " + heal);
+
+                if((hp + heal) >= (int)hpSlider_A.maxValue) heal = 0;
+
+                hp += heal;
+                SendHP(hp, Enemy_hp);//自身のステータスを相手に再反映
+                ui.ChangeHPSlider(hp, Enemy_hp, hpSlider_A, hpSlider_E, hpText_A);//自分側のHPバーを設定
+                ChangeHPber(hp, Enemy_hp);//相手側のHPバーを設定
                 return;
             }
 
-            //スキルが攻撃系だった時
-            if(skill.special == 1)
+            if(skill.special == 1)//スキルが攻撃系だった時
             {
                 mag = skill.mag;//スキルが特殊系の時
-                damage = ((Ally.cardStatusList[Ally.SelectCardId].magatk * mag / 2) - (Enemy_magdef / 3)) * comp;
-            } 
-            else
+
+                Debug.Log("mag : " + mag);
+
+                damage = ((magatk * mag / 2) - (Enemy_magdef / 3)) * comp;
+                if(damage <= 0) damage = 0;
+            }
+            else//スキルが物理系の時
             {
-                mag = skill.mag;//スキルが物理系の時
-                damage = ((Ally.cardStatusList[Ally.SelectCardId].atk * mag / 2) - (Enemy_def / 3)) * comp;
+                mag = skill.mag;
+
+                Debug.Log("mag : " + mag);
+
+                damage = ((atk * mag / 2) - (Enemy_def / 3)) * comp;
+                if(damage <= 0) damage = 0;
             }
         }
         else
@@ -309,10 +443,19 @@ public class BattleController : MonoBehaviourPunCallbacks
             damage = 0;
         }
 
+        Debug.Log("ダメージ量 : " + damage);
+
         Enemy_hp -= (int)damage;
         if(Enemy_hp < 0) Enemy_hp = 0;
 
-        ChangeHPber(Ally.cardStatusList[Ally.SelectCardId].hp, Enemy_hp);
+        SendHP(hp, Enemy_hp);//自身のステータスを相手に再反映
+
+        ui.ChangeHPSlider(hp, Enemy_hp, hpSlider_A, hpSlider_E, hpText_A);//自分側のHPバーを設定
+        ChangeHPber(hp, Enemy_hp);//相手側のHPバーを設定
+
+        if(Enemy_hp == 0) SendChangeScene();
+
+        finishTakeDamage = true;
     }
 
 //ルーレットのスキル表記を変更する
@@ -328,7 +471,7 @@ public class BattleController : MonoBehaviourPunCallbacks
         for (int i = 0; i < 3; i++)
         {
             skill = skills[skill1[i]];
-            roulettTexts[i].text = skill.name;
+            roulettTexts[i + 1].text = skill.name;
         }
     }
 
@@ -366,19 +509,42 @@ public class BattleController : MonoBehaviourPunCallbacks
         photonView.RPC(nameof(RPCOnStartButton), RpcTarget.All, null);
     }
     
+//ルーレットの結果を共有する（resultValueを統一する）
+    public void SendResultValue(int value)
+    {
+        photonView.RPC(nameof(RPCResultValue), RpcTarget.All, value);
+    }
+    [PunRPC]
+    void RPCResultValue(int value)
+    {
+        this.roulettResult = value;
+    }
 
 //ストップボタンが押された時にコルーチンの　処理が進むようにする(RPC)
     [PunRPC]
     private void RPCOnStopButton()
     {
-        isStop = true;
+        this.isStop = true;
+        ui.OnStopButton();
+
+        if(turn)//押したらボタンを非表示にする
+        {
+            StopButton.SetActive(false);
+        }
     }
 
     //ボタンが押された時にコルーチンの　処理が進むようにする(相手と同期)
     [PunRPC]
     private void RPCOnStartButton()
     {
-        isStart = true;
+        this.isStart = true;
+        ui.OnStartButton();
+
+        if(turn)//押したらスタートボタンを消してストップボタンに変える
+        {
+            StartButton.SetActive(false);
+            StopButton.SetActive(true);
+        }
     }
 
 //ターンを変更する
@@ -390,20 +556,10 @@ public class BattleController : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPCChangeTurn()
     {
-        if(turn) turn = false;
+        if(turn == true) turn = false;
         else turn = true;
     }
 
-    private void SendSetTurn(bool t)
-    {
-        photonView.RPC(nameof(RPCChangeTurn), RpcTarget.Others, t);
-    }
-
-    [PunRPC]
-    private void RPCSetTurn(bool t)
-    {
-        turn = t;
-    }
 //相手に自分のキャラのステータスを送る
     private void SendCharacterStatus(int eattribute, int ehp, int eatk, int emagatk, int edef, int emagdef, int espeed, int[]eskill1)
     {
@@ -423,11 +579,26 @@ public class BattleController : MonoBehaviourPunCallbacks
         Enemy_skill1 = eskill;
         getEnemyStatus = true;
     }
+
+    private void SendHP(int hp, int ehp)
+    {
+        photonView.RPC(nameof(RPCsetCharacter), RpcTarget.Others, hp, ehp);
+    }
+
+    [PunRPC]
+    void RPCsetCharacter(int ehp, int hp)
+    {
+        this.hp = hp;
+        Enemy_hp = ehp;
+
+        Debug.Log("[Enemy]" + Enemy_hp + "," + Enemy_atk + "," + Enemy_def + "," + Enemy_magatk + "," + Enemy_magdef + "," + Enemy_speed + "," + (int)Enemy_attribute);
+    }
+
+//スプライト送信
     private void SendSprite(Sprite sprite)
     {
         photonView.RPC(nameof(SetSprite), RpcTarget.Others, sprite);
     }
-
     [PunRPC]
     void SetSprite(Sprite sprite)
     {
@@ -436,7 +607,7 @@ public class BattleController : MonoBehaviourPunCallbacks
         getEnemySprite = true;
     }
 
-    //シーンを変更する
+//シーンを変更する
     private void SendChangeScene()
     {
         photonView.RPC(nameof(RPCChangeScene), RpcTarget.All);
@@ -445,17 +616,29 @@ public class BattleController : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPCChangeScene()
     {
+        if(hp > Enemy_hp) turn = true;
+        else turn = false;
+
         SceneManager.LoadScene("Scene8");
     }
-    private IEnumerator TurnText()
+
+//ターン表示のアニメーション
+    private IEnumerator TurnText(bool Turn)
     {
+
+        Debug.Log("<TurnText>");
+
         TurnObj.gameObject.SetActive(false);
         TurnObj.transform.localScale = new Vector3(0, 0, 0);
         TurnObj.gameObject.SetActive(true);
         TurnObj.transform.DOScale(new Vector3(1.0f, 1.0f, 0), 0.5f).SetEase(Ease.OutBounce);
-        if (turn) TurnObj.text = "Your Turn";
+        if (Turn == true) TurnObj.text = "Your Turn";
         else TurnObj.text = "Rival Turn";
         yield return new WaitForSeconds(1.2f);//0.8秒待機
         TurnObj.gameObject.SetActive(false);
+
+        Debug.Log("</TurnText>");
+
+        yield break;
     }
 }

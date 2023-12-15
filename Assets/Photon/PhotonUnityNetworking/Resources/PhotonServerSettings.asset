@@ -53,6 +53,10 @@ MonoBehaviour:
   - SetEnemyStatus
   - SetSprite
   - RPCDisplayPanel
+  - RPCSendConf
+  - RPCStartCoroutine
+  - RPCHiddenPanel
+  - RPCResultValue
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

@@ -28,7 +28,7 @@ public class UIController : MonoBehaviour
         
     }
     
-    void Update()
+    void FixedUpdate()
     {
         if(isStart)
         {
@@ -63,36 +63,34 @@ public class UIController : MonoBehaviour
         //  isStopがtrueのときにルーレットを減速
         if (isStop)
         {
-            lottery = Random.Range(990, 997) * 0.001f;
+            lottery = Random.Range(900, 970) * 0.001f;
             speed *= lottery;
         }
-        if (fireTime >= 2.5 && justOnce)
+        if (fireTime >= 2.0 && justOnce)
         {
             fireTime = 0;
             justOnce = false;
 
             // ここで他スクリプトに(int)countTimeを送信したい
             resultValue = (int)countTime;
+            battle.SendResultValue(resultValue);
+
+            commandlist[resultValue].color = new Color(1, 1, 1);
 
             //止まったところを点滅させるコルーチンの起動
-            StartCoroutine(Blinking(commandlist[(int)countTime]));
+            StartCoroutine(Blinking(commandlist[battle.roulettResult]));
         }
     }
 
 //HPバー
 
     //自分のキャラクターのHPをHPバーに反映する
-    public void ChangeAllySlider(int nowhp, Slider hpSlider_A, Text hpText_A)
+    public void ChangeHPSlider(int Ally_hp, int Enemy_hp, Slider hpSlider_A, Slider hpSlider_E, Text hpText_A)
     {
-        hpSlider_A.value = nowhp;
+        hpSlider_A.value = Ally_hp;
+        hpSlider_E.value = Enemy_hp;
         //テキストを変更
-        hpText_A.text = "HP  " + nowhp.ToString();
-    }
-
-    //相手のキャラクターのHPをHPバーに反映する
-    public void ChangeEnemySlider(int nowhp, Slider hpSlider_E)
-    {
-        hpSlider_E.value = nowhp;
+        hpText_A.text = "HP  " + Ally_hp.ToString();
     }
 
 //パネル
@@ -132,13 +130,13 @@ public class UIController : MonoBehaviour
     {
         //Debug.Log("<IEnumerator Blinking>");
         // 点滅する
-        for(int i = 0; i < 3; i++)
+        for(int i = 0; i < 10; i++)
         {
-            _image.color = new Color(1, 0, 0);
+            _image.color = new Color(1, 1, 1);
 
             yield return new WaitForSeconds(0.25f);
 
-            _image.color = new Color(1, 1, 1);
+            _image.color = new Color(1, 0, 0);
 
             yield return new WaitForSeconds(0.25f);
         }

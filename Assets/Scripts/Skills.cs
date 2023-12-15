@@ -43,6 +43,8 @@ public class Skills
             skill.special = int.Parse(csvDatas[i][3]);
             skill.heal = int.Parse(csvDatas[i][4]);
 
+            //Debug.LogFormat("<color=cyan>{0} {1} {2} {3} {4}</color>", skill.id, skill.name, skill.mag, skill.special, skill.heal);
+
             //戻り値のリストに加える
             sk_list.Add(skill);
         }

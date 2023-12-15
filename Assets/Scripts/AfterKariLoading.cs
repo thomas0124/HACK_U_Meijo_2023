@@ -33,6 +33,8 @@ public class AfterKariLoading : MonoBehaviour
     }
     IEnumerator enumerator()
     {
+        Debug.Log("<enumerator>");
+
         fill.DOFade(endValue: 0f, duration: 1f);
         background.DOFade(endValue: 0f, duration: 1f);
         text.DOFade(endValue: 0f, duration: 1f);
@@ -62,5 +64,7 @@ public class AfterKariLoading : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         vs.DOFade(endValue: 0f, duration: 1.1f);
         gameObject.SetActive(false);
+
+        Debug.Log("</enumerator>");
     }
 }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 190fb4272ea9d2d4cb0acf3dad8f4734, type: 3}
   m_Name: Card In Inventory
   m_EditorClassIdentifier: 
-  SelectCardId: 3
+  SelectCardId: 2
   cardStatusList:
   - creature: {fileID: 21300000, guid: 1b30facc83db77749bc267d956d0221e, type: 3}
     attribute: 0
@@ -39,7 +39,7 @@ MonoBehaviour:
     magatk: 500
     def: 100
     magdef: 100
-    speed: 20
+    speed: 21
     skill1: 010000000200000003000000
   - creature: {fileID: 21300000, guid: c9a46ecbe673ddd48aaf9970330f2e1b, type: 3}
     attribute: 3
