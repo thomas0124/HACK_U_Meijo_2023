@@ -26,7 +26,7 @@ public class ResultController : MonoBehaviour
     //シーン2に移動する
     public void OnClickedButton2()
     {
-        SceneManager.LoadScene("Scene2");
+        SceneManager.LoadScene("GenerationScene");
     }
 
     //MainSceneに移動する

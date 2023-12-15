@@ -397,7 +397,7 @@ public class BattleController : MonoBehaviourPunCallbacks
             damage = ((atk / 2) - (Enemy_def / 3)) * comp;
             if(damage <= 0) damage = 0;
         }
-        else if(action <= 3 && action >= 1)
+        else if(action <= 4 && action >= 1)
         {
             skill = skills[skill1[action - 1]];
             Debug.Log("スキル : [" + skill.name + "]");
@@ -468,7 +468,7 @@ public class BattleController : MonoBehaviourPunCallbacks
     private void RPCChangeRoulettText(int[] skill1)
     {
         Skills.SKILL skill = new Skills.SKILL();//発動するスキルを格納
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < skill.Length; i++)
         {
             skill = skills[skill1[i]];
             roulettTexts[i + 1].text = skill.name;
