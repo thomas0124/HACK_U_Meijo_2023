@@ -75,8 +75,8 @@ namespace ComicUI
 
         public virtual void OnClickAction()
         {
-            //_isHovering = false;
-            //ResetAnimation();
+            _isHovering = false;
+            ResetAnimation();
         }
 
         public void OnHover()

@@ -10,18 +10,19 @@ public class SceneTransitionManager : MonoBehaviour
     public static SceneTransitionManager Instance { get; private set; }
     
     [SerializeField] private Image transitionFadeImage;
-    public float transitionFadeTime; 
+    public float transitionFadeTime;
 
     private void Awake()
     {
-        if(Instance == null)
+        if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
         {
-            Destroy(gameObject);
+            Destroy(Instance.gameObject);
+            Instance = this;
         }
     }
 

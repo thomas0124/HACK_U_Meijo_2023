@@ -93,15 +93,17 @@ public class ImageEdit : MonoBehaviour
             if(rectWidth - rectHeight * 9 / 16 < 10 && rectWidth - rectHeight * 9 / 16 > -10)
             {
                 message.text = "カードを作成できます";
-                var test = PhotoManager.Instance.CreateButton.GetComponent<EventTrigger>();
+                PhotoManager.Instance.CreateButton.GetComponent<EventTrigger>().enabled = true;
             }
             else if(rectWidth - rectHeight * 9 / 16 < -10)
             {
                 message.text = "縦型に調整してください\n横を長くするか、縦を短くする必要があります";
+                PhotoManager.Instance.CreateButton.GetComponent<EventTrigger>().enabled = false;
             }
             else if(rectWidth - rectHeight * 9 / 16 > 10)
             {
                 message.text = "縦型に調整してください\n縦を長くするか、横を短くする必要があります";
+                PhotoManager.Instance.CreateButton.GetComponent<EventTrigger>().enabled = false;
             }
             
             yield return null;

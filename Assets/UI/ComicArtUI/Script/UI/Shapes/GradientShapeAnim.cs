@@ -6,11 +6,6 @@ namespace ComicUI
 {
     public class GradientShapeAnim : ShapesAnim
     {
-        private void Start()
-        {
-            base.PlayHoverAnimation();
-        }
-
         public override void OnHoverAction()
         {
             ButtonShape.settings.gradientStart = Mathf.Lerp(ButtonShape.settings.gradientStart, MaxValue,
