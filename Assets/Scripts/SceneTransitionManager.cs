@@ -9,7 +9,8 @@ public class SceneTransitionManager : MonoBehaviour
 {
     public static SceneTransitionManager Instance { get; private set; }
     
-    [SerializeField] private Image transitionFadeImage; 
+    [SerializeField] private Image transitionFadeImage;
+    public float transitionFadeTime; 
 
     private void Awake()
     {
@@ -26,10 +27,10 @@ public class SceneTransitionManager : MonoBehaviour
 
     public void SceneTransition(string sceneName)
     {
-        transitionFadeImage.DOFade(1.0f, 2.0f).OnComplete(() => {
+        transitionFadeImage.DOFade(1.0f, transitionFadeTime).OnComplete(() => {
             SceneManager.LoadScene(sceneName);
             Debug.Log("SceneTransition");
-            transitionFadeImage.DOFade(0.0f, 2.0f);
+            transitionFadeImage.DOFade(0.0f, transitionFadeTime);
         });
     }
 }
