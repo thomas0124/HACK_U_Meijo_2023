@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class MakeCard : MonoBehaviour
 {
@@ -30,7 +31,8 @@ public class MakeCard : MonoBehaviour
                 type = 4;
                 break;
         }
-        int[] skill = new int[] { 1, 1, 1 };
+        UnityEngine.Random.InitState(DateTime.Now.Second);
+        int[] skill = new int[] { UnityEngine.Random.Range(1, 44), UnityEngine.Random.Range(1, 44), UnityEngine.Random.Range(1, 44) };
         Texture2D texture2D = cardImage.texture as Texture2D;
         Sprite sprite = Sprite.Create(texture2D, new Rect(0, 0, cardImage.texture.width, cardImage.texture.height),new Vector2(0.5f,0.5f));
         cardInInventory.cardStatusList.Add(new CardStatus(sprite, type, statusInfo.hp, statusInfo.attack, statusInfo.specialAttack, statusInfo.defense, statusInfo.specialDefense, statusInfo.speed, skill));

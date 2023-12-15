@@ -468,7 +468,7 @@ public class BattleController : MonoBehaviourPunCallbacks
     private void RPCChangeRoulettText(int[] skill1)
     {
         Skills.SKILL skill = new Skills.SKILL();//発動するスキルを格納
-        for (int i = 0; i < skill.Length; i++)
+        for (int i = 0; i < 4; i++)
         {
             skill = skills[skill1[i]];
             roulettTexts[i + 1].text = skill.name;
