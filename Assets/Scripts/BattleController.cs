@@ -619,6 +619,8 @@ public class BattleController : MonoBehaviourPunCallbacks
         if(hp > Enemy_hp) turn = true;
         else turn = false;
 
+
+        
         SceneManager.LoadScene("Scene8");
     }
 
