@@ -51,22 +51,39 @@ public class ImageEdit : MonoBehaviour
 
         //初期化処理
         setRectangle.Init();
-
-        Texture2D shoImageTexture = showImage.texture as Texture2D;
         
         showImageRect = showImage.GetComponent<RectTransform>();
         showImageRect.SetAnchorWithKeepingPosition(0.5f, 0.5f);
 
-        pixelWidthPerRectTransformWidth = shoImageTexture.width / showImageRect.sizeDelta.x;
-        pixelHeightPerRectTransformHeight = shoImageTexture.height / showImageRect.sizeDelta.y;
-
         StartCoroutine(ShowImageSize());
+    }
+
+    public void Rotate(Texture originalImageTexture)
+    {
+        //ロードした画像を取得
+        showImage.texture = originalImageTexture;
+
+        //画像の拡縮
+        handleRangeImage.texture = originalImageTexture;
+        handleRangeImage.gameObject.GetComponent<AspectRatioManager>().GetImage();
+        //handleRangeの画像は不要であるためnullにする
+        handleRangeImage.texture = null;
+
+        //maskImageの位置を初期化
+        //maskImage.rectTransform.offsetMin = new Vector2(0f, 0f);
+        //maskImage.rectTransform.offsetMax = new Vector2(0f, 0f);
+        //初期化処理
+        //setRectangle.Init();
     }
 
     private IEnumerator ShowImageSize()
     {
         while(true)
         {
+            Texture2D shoImageTexture = showImage.texture as Texture2D;
+            pixelWidthPerRectTransformWidth = shoImageTexture.width / showImageRect.sizeDelta.x;
+            pixelHeightPerRectTransformHeight = shoImageTexture.height / showImageRect.sizeDelta.y;
+
             rectX = (int)((rectImage.rectTransform.offsetMin.x + 3f) * pixelWidthPerRectTransformWidth);
             rectY = (int)((rectImage.rectTransform.offsetMax.y + 3f) * pixelHeightPerRectTransformHeight * (-1));
             rectWidth = (int)(((showImageRect.sizeDelta.x - 6f) - (rectImage.rectTransform.offsetMin.x + rectImage.rectTransform.offsetMax.x * (-1))) * pixelWidthPerRectTransformWidth);
@@ -98,6 +115,7 @@ public class ImageEdit : MonoBehaviour
         // (rectX, rectY)から(rectWidth, rectangleHeight)の範囲の画像を切り取る
         Texture2D cardTexture = new Texture2D(rectWidth, rectHeight, TextureFormat.RGBA32, false);
         Texture2D showImageTexture = showImage.texture as Texture2D;
+        Debug.Log("rectX: " + rectX + ", rectY: " + rectY + ", rectWidth: " + rectWidth + ", rectHeight: " + rectHeight);
         Color[] pixels = showImageTexture.GetPixels(rectX, rectY, rectWidth, rectHeight);
         cardTexture.SetPixels(pixels);
         cardTexture.Apply();
