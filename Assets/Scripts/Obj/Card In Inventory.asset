@@ -14,4 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemySprite: {fileID: 0}
   SelectCardId: 1
-  cardStatusList: []
+  cardStatusList:
+  - creature: {fileID: 21300000, guid: 7377013011b4c3348809ff574abe799e, type: 3}
+    attribute: 1
+    hp: 2145
+    atk: 560
+    magatk: 980
+    def: 711
+    magdef: 335
+    speed: 978
+    skill1: 22000000020000001d00000001000000
+  - creature: {fileID: 21300000, guid: 44ebd8e6f42cae445ab4b22f0a9b48a0, type: 3}
+    attribute: 1
+    hp: 2945
+    atk: 912
+    magatk: 387
+    def: 980
+    magdef: 319
+    speed: 577
+    skill1: 25000000110000002b00000013000000

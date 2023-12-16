@@ -415,26 +415,27 @@ public class BattleController : MonoBehaviourPunCallbacks
                 SendHP(hp, Enemy_hp);//自身のステータスを相手に再反映
                 ui.ChangeHPSlider(hp, Enemy_hp, hpSlider_A, hpSlider_E, hpText_A);//自分側のHPバーを設定
                 ChangeHPber(hp, Enemy_hp);//相手側のHPバーを設定
-                return;
             }
-
-            if(skill.special == 1)//スキルが攻撃系だった時
+            else
             {
-                mag = skill.mag;//スキルが特殊系の時
+                if(skill.special == 1)//スキルが攻撃系だった時
+                {
+                    mag = skill.mag;//スキルが特殊系の時
 
-                Debug.Log("mag : " + mag);
+                    Debug.Log("mag : " + mag);
 
-                damage = ((magatk * mag / 2) - (Enemy_magdef / 3)) * comp;
-                if(damage <= 0) damage = 0;
-            }
-            else//スキルが物理系の時
-            {
-                mag = skill.mag;
+                    damage = ((magatk * mag / 2) - (Enemy_magdef / 3)) * comp;
+                    if(damage <= 0) damage = 0;
+                }
+                else//スキルが物理系の時
+                {
+                    mag = skill.mag;
 
-                Debug.Log("mag : " + mag);
+                    Debug.Log("mag : " + mag);
 
-                damage = ((atk * mag / 2) - (Enemy_def / 3)) * comp;
-                if(damage <= 0) damage = 0;
+                    damage = ((atk * mag / 2) - (Enemy_def / 3)) * comp;
+                    if(damage <= 0) damage = 0;
+                }
             }
         }
         else
