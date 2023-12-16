@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Card In Inventory
   m_EditorClassIdentifier: 
   enemySprite: {fileID: 0}
-  SelectCardId: 3
+  SelectCardId: 1
   cardStatusList: []

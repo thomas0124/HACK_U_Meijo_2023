@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using Photon.Pun;
 
 public class ResultController : MonoBehaviour
 {
@@ -26,12 +27,16 @@ public class ResultController : MonoBehaviour
     //シーン2に移動する
     public void OnClickedButton2()
     {
+        Debug.Log("LeaveRoom");
+        PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene("GenerationScene");
     }
 
     //MainSceneに移動する
     public void OnClickedButton5()
     {
+        Debug.Log("LeaveRoom");
+        PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene("MainScene");
     }
 }

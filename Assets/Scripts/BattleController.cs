@@ -45,7 +45,7 @@ public class BattleController : MonoBehaviourPunCallbacks
     private int def;
     private int magdef;
     private int speed;
-    private int[] skill1 = new int[] { 0, 0, 0 };
+    private int[] skill1 = new int[] { 0, 0, 0, 0 };
 
     public Image Enemy_image;
     private Sprite Enemy_creature;

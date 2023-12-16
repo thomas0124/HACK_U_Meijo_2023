@@ -63,7 +63,7 @@ public class UIController : MonoBehaviour
         //  isStopがtrueのときにルーレットを減速
         if (isStop)
         {
-            lottery = Random.Range(900, 970) * 0.001f;
+            lottery = 930 * 0.001f;
             speed *= lottery;
         }
         if (fireTime >= 2.0 && justOnce)

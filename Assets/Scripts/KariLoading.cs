@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Photon.Pun;
 
-public class KariLoading : MonoBehaviour
+public class KariLoading : MonoBehaviourPunCallbacks
 {
     int i = 0;
     public Transform loadingObject;
@@ -16,6 +17,7 @@ public class KariLoading : MonoBehaviour
     public CardInInventory cardInInventory;
     public GetEnemyCard getEnemyCard;
     public Image image;
+    private bool flag = false;
     void Start()
     {
         StartCoroutine(enumerator());
@@ -28,6 +30,7 @@ public class KariLoading : MonoBehaviour
 
     IEnumerator enumerator()
     {
+        float a = Time.time;
         getEnemyCard.SendSprite(cardInInventory.cardStatusList[cardInInventory.SelectCardId].creature);
         while (i <= 100)
         {
@@ -36,9 +39,23 @@ public class KariLoading : MonoBehaviour
             yield return new WaitForSeconds(0.02f);
             i++;
         }
-        yield return new WaitForSeconds(2.0f);
-        image.sprite = getEnemyCard.enemySprite;
-        cardInInventory.enemySprite = getEnemyCard.enemySprite;
+        yield return new WaitForSeconds(5.0f);
+        while (Time.time - a >= 10)
+        {
+            yield return null;
+        }
+        while (image.sprite == null)
+        {
+            image.sprite = getEnemyCard.enemySprite;
+        }
+        Debug.Log("a");
+        photonView.RPC(nameof(CompLoad), RpcTarget.Others);
+        cardInInventory.enemySprite = image.sprite;
         loadScene.allowNextScene = true;
+    }
+    [PunRPC]
+    void CompLoad()
+    {
+        flag = true;
     }
 }

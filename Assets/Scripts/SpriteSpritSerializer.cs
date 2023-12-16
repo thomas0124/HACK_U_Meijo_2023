@@ -15,7 +15,7 @@ public class SpriteSpritSerializer : MonoBehaviour
         Texture2D texture = sprite.texture;
 
         // Texture2DをPNG形式のバイト配列に変換
-        byte[] bytes = texture.EncodeToJPG(50);
+        byte[] bytes = texture.EncodeToJPG(30);
 
         return bytes;
     }

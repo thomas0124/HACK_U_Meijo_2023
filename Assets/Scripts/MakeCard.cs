@@ -32,7 +32,7 @@ public class MakeCard : MonoBehaviour
                 break;
         }
         UnityEngine.Random.InitState(DateTime.Now.Second);
-        int[] skill = new int[] { UnityEngine.Random.Range(1, 44), UnityEngine.Random.Range(1, 44), UnityEngine.Random.Range(1, 44) };
+        int[] skill = new int[] { UnityEngine.Random.Range(1, 41), UnityEngine.Random.Range(1, 41), UnityEngine.Random.Range(1, 44), UnityEngine.Random.Range(1, 41) };
         Texture2D texture2D = cardImage.texture as Texture2D;
         Sprite sprite = Sprite.Create(texture2D, new Rect(0, 0, cardImage.texture.width, cardImage.texture.height),new Vector2(0.5f,0.5f));
         cardInInventory.cardStatusList.Add(new CardStatus(sprite, type, statusInfo.hp, statusInfo.attack, statusInfo.specialAttack, statusInfo.defense, statusInfo.specialDefense, statusInfo.speed, skill));
