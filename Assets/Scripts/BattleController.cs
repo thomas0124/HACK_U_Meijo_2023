@@ -444,7 +444,7 @@ public class BattleController : MonoBehaviourPunCallbacks
             damage = 0;
         }
 
-        Debug.Log("ダメージ量 : " + damage);
+        Debug.Log("ダメージ量 : " + (int)damage);
 
         Enemy_hp -= (int)damage;
         if(Enemy_hp < 0) Enemy_hp = 0;
